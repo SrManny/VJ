@@ -69,6 +69,7 @@ void Game::mousePress(int button)
 
 void Game::mouseRelease(int button)
 {
+	scene.mouseRelease(button);
 	if(button == GLUT_LEFT_BUTTON)
 		bLeftMouse = false;
 	else if(button == GLUT_RIGHT_BUTTON)

@@ -20,6 +20,10 @@ TexturedQuad::TexturedQuad(glm::vec2 geom[2], glm::vec2 texCoords[2], ShaderProg
 		geom[1].x, geom[1].y, texCoords[1].x, texCoords[1].y,
 		geom[0].x, geom[1].y, texCoords[0].x, texCoords[1].y };
 
+	boundingBox[0] = geom[0][0];
+	boundingBox[1] = geom[0][1];
+	boundingBox[2] = geom[1][0];
+	boundingBox[3] = geom[1][1];
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glGenBuffers(1, &vbo);
@@ -45,3 +49,6 @@ void TexturedQuad::free()
 	glDeleteBuffers(1, &vbo);
 }
 
+int* TexturedQuad::getboundingBox() {
+	return boundingBox;
+}

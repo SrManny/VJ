@@ -18,11 +18,13 @@ public:
 
 	void render(const Texture &tex) const;
 	void free();
+	int* getboundingBox();
 
 private:
 	GLuint vao;
 	GLuint vbo;
 	GLint posLocation, texCoordLocation;
+	int boundingBox[4];
 
 };
 

@@ -17,6 +17,7 @@ Scene::~Scene()
 }
 
 
+
 void Scene::init()
 {
 	glm::vec2 geom[2] = {glm::vec2(0.f, 0.f), glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT))};
@@ -27,10 +28,7 @@ void Scene::init()
 
 	map = MaskedTexturedQuad::createTexturedQuad(geom, texCoords1, maskedTexProgram);
 	//Creo en quad donde voy a texturizar el fondo
-	menuText[0] = TexturedQuad::createTexturedQuad(geom, texCoords2, zetaTextProgram);
-	menuTexture.loadFromFile("images/fondo.png", TEXTURE_PIXEL_FORMAT_RGBA);
-	menuTexture.setMinFilter(GL_NEAREST);
-	menuTexture.setMagFilter(GL_NEAREST);
+	menu.init();
 
 	colorTexture.loadFromFile("images/fun1.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	colorTexture.setMinFilter(GL_NEAREST);
@@ -44,7 +42,7 @@ void Scene::init()
 	
 	lemming.init(glm::vec2(60, 30), simpleTexProgram);
 	lemming.setMapMask(&maskTexture);
-	menu = true;
+	bmenu = true;
 }
 
 unsigned int x = 0;
@@ -59,7 +57,7 @@ void Scene::render()
 {
 	glm::mat4 modelview;
 //Si no estamos en el menu cargo lo que sea
-	if (!menu) {
+	if (!bmenu) {
 		maskedTexProgram.use();
 		maskedTexProgram.setUniformMatrix4f("projection", projection);
 		maskedTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
@@ -76,39 +74,29 @@ void Scene::render()
 	}
 	//Cargo el Menu: la imagen de fondo, (en un futuro los botones)...
 	else {
-		zetaTextProgram.use();
-		zetaTextProgram.setUniformMatrix4f("projection", projection);
-		zetaTextProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-		modelview = glm::mat4(1.0f);
-		zetaTextProgram.setUniformMatrix4f("modelview", modelview);
-		zetaTextProgram.setUniform2f("zeta", 0.f ,1.f);
-		menuText[0]->render(menuTexture);
+		menu.render();
 	}
 }
 
 void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton)
 {
-	/*
-	Aqui haciendo polling mirare que quad se ha intersecado parar reconocer en que textura hemos pulsado y saber si hemos pulsado start
-	o lo que sea para iniciar partida o lo que toque
-	...
-	Pruebas sin sentido
-	unsigned char pixel[4];
-	glReadPixels(mouseX, mouseY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-	if (menu && pixel[3] == 220) {
-		menu = false;
+
+	if (bmenu) {
+		menu.mouseMoved(mouseX, mouseY, bLeftButton);
 	}
-	*/
-	if (bLeftButton) {
-		if (menu) menu = false;
-		eraseMask(mouseX, mouseY);
-	}
-	else if (bRightButton) {
-	if (menu) menu = false;
-	applyMask(mouseX, mouseY);
+	else {
+		if (bLeftButton) {
+			eraseMask(mouseX, mouseY);
+		}
+		else if (bRightButton) {
+			applyMask(mouseX, mouseY);
+		}
 	}
 }
 
+void Scene::mouseRelease(int button) {
+	if (bmenu) bmenu = menu.mouseRelease(button);
+}
 void Scene::eraseMask(int mouseX, int mouseY)
 {
 	int posX, posY;
@@ -190,32 +178,7 @@ void Scene::initShaders()
 	maskedTexProgram.bindFragmentOutput("outColor");
 	vShader.free();
 	fShader.free();
-
-	vShader.initFromFile(VERTEX_SHADER, "shaders/zetaVariable.vert");
-	if (!vShader.isCompiled())
-	{
-		cout << "Vertex Shader Error" << endl;
-		cout << "" << vShader.log() << endl << endl;
-	}
-	fShader.initFromFile(FRAGMENT_SHADER, "shaders/zetaVariable.frag");
-	if (!fShader.isCompiled())
-	{
-		cout << "Fragment Shader Error" << endl;
-		cout << "" << fShader.log() << endl << endl;
-	}
-	zetaTextProgram.init();
-	zetaTextProgram.addShader(vShader);
-	zetaTextProgram.addShader(fShader);
-	zetaTextProgram.link();
-	if (!zetaTextProgram.isLinked())
-	{
-		cout << "Shader Linking Error" << endl;
-		cout << "" << zetaTextProgram.log() << endl << endl;
-	}
-	zetaTextProgram.bindFragmentOutput("outColor");
-	vShader.free();
-	fShader.free();
-
+	
 }
 
 

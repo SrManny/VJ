@@ -12,28 +12,33 @@ Menu::~Menu()
 {
 }
 
-void Menu::startButtonMatrixs() {
+void Menu::ButtonsMatrixs() {
 
 	startModel = glm::mat4(1.0f);
 	startModel = glm::translate(startModel, glm::vec3(120.f, 100.f, 0.f));
 	startModel = glm::translate(startModel, glm::vec3(-50.f / 2.f, -72.f / 8.f, 0.f));
 	startInvMatrix = glm::inverse(startModel);
+
 }
 void Menu::init() {
 
 	initShaders();
 	startSprite = 0;
+	selectSprite = 0;
 	overStart = false;
+	overSelect = false;
 	projection = glm::ortho(0.f, float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1), 0.f);
-	startButtonMatrixs();
+	ButtonsMatrixs();
 	glm::vec2 geom[2] = { glm::vec2(0.f, 0.f), glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT)) };
 	glm::vec2 texCoords[2] = { glm::vec2(0.f, 0.f), glm::vec2(1.f, 1.f) };
-
+	
+	//Imagen de fondo
 	backQuad = TexturedQuad::createTexturedQuad(geom, texCoords, zetaTextProgram);
 	background.loadFromFile("images/fondo.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	background.setMinFilter(GL_NEAREST);
 	background.setMagFilter(GL_NEAREST);
-
+	
+	//Sprite del Start
 	geom[0] = glm::vec2(0.f, 0.f); geom[1] = glm::vec2(50.f, 72.f / 4.f);
 	texCoords[0] = glm::vec2(0.f, 0.f); texCoords[1] = glm::vec2(1.f, 1.f / 3.f);
 	startQuad[0] = TexturedQuad::createTexturedQuad(geom, texCoords, zetaTextProgram);
@@ -52,6 +57,29 @@ void Menu::init() {
 	start[2].loadFromFile("images/startButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	start[2].setMinFilter(GL_NEAREST);
 	start[2].setMagFilter(GL_NEAREST);
+	
+	//Sprite de selectLevels
+	geom[0] = glm::vec2(0.f, 0.f); geom[1] = glm::vec2(50.f, 72.f / 4.f);
+	texCoords[0] = glm::vec2(0.f, 0.f); texCoords[1] = glm::vec2(1.f, 1.f / 3.f);
+	selectQuad[0] = TexturedQuad::createTexturedQuad(geom, texCoords, zetaTextProgram);
+	selectLevels[0].loadFromFile("images/startButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	selectLevels[0].setMinFilter(GL_NEAREST);
+	selectLevels[0].setMagFilter(GL_NEAREST);
+
+	texCoords[0] = glm::vec2(0.f, 1.f / 3.f); texCoords[1] = glm::vec2(1.f, 2.f / 3.f);
+	selectQuad[0] = TexturedQuad::createTexturedQuad(geom, texCoords, zetaTextProgram);
+	selectLevels[0].loadFromFile("images/startButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	selectLevels[0].setMinFilter(GL_NEAREST);
+	selectLevels[0].setMagFilter(GL_NEAREST);
+
+	texCoords[0] = glm::vec2(0.f, 2.f / 3.f); texCoords[1] = glm::vec2(1.f, 1.f);
+	selectQuad[0] = TexturedQuad::createTexturedQuad(geom, texCoords, zetaTextProgram);
+	selectLevels[0].loadFromFile("images/startButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	selectLevels[0].setMinFilter(GL_NEAREST);
+	selectLevels[0].setMagFilter(GL_NEAREST);
+
+
+
 }
 
 void Menu::render() {

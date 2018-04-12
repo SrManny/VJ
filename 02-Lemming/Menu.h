@@ -20,17 +20,18 @@ public:
 
 private:
 	void initShaders();
-	void ButtonsMatrixs();
+	void startButtonMatrixs();
+	bool intersecta(int x, int y, glm::vec4 min, glm::vec4 max);
 
 private:
-	Texture background, start[3], selectLevels[3];
-	TexturedQuad *backQuad, *startQuad[3], *selectQuad[3];
+	Texture background, start[3];
+	TexturedQuad *backQuad, *startQuad[3];
 	ShaderProgram zetaTextProgram;
 	glm::mat4 projection;
 	//0 normal, 1 raton encima, 2 clik en el boton
-	int startSprite, selectSprite;
+	int startSprite;
 	//start is pressed
-	bool overStart, overSelect;
+	bool overStart;
 	glm::mat4 startInvMatrix, startModel;
 };
 

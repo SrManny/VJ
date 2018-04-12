@@ -87,7 +87,8 @@ int main(int argc, char **argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(960, 480);
+	//Le sumamos a 480 + 84 pixeles del panel de poderes
+	glutInitWindowSize(960, 564);
 
 	glutCreateWindow(argv[0]);
 	glutDisplayFunc(drawCallback);

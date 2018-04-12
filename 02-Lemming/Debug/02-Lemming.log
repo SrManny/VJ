@@ -1,8 +1,4 @@
-﻿Build started 03/04/2018 9:49:20.
-     1>Project "F:\VJ\ExLemmings\ExLemmings\Lemmings\02-Lemming\02-Lemming.vcxproj" on node 2 (Build target(s)).
-     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.Cpp.Platform.targets(64,5): error MSB8020: The build tools for v141 (Platform Toolset = 'v141') cannot be found. To build using the v141 build tools, please install v141 build tools.  Alternatively, you may upgrade to the current Visual Studio tools by selecting the Project menu or right-click the solution, and then selecting "Upgrade Solution...".
-     1>Done Building Project "F:\VJ\ExLemmings\ExLemmings\Lemmings\02-Lemming\02-Lemming.vcxproj" (Build target(s)) -- FAILED.
-
-Build FAILED.
-
-Time Elapsed 00:00:00.01
+﻿  PowersBar.cpp
+c:\users\manuelf\desktop\uni\vj\exlemmings\lemmings\02-lemming\powersbar.cpp(152): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\manuelf\desktop\uni\vj\exlemmings\lemmings\02-lemming\powersbar.cpp(153): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+  02-Lemming.vcxproj -> C:\Users\ManuelF\Desktop\UNI\VJ\ExLemmings\Lemmings\02-Lemming\Debug\02-Lemming.exe

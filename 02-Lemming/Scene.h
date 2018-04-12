@@ -7,6 +7,7 @@
 #include "MaskedTexturedQuad.h"
 #include "Lemming.h"
 #include "Menu.h"
+#include "PowersBar.h"
 
 
 // Scene contains all the entities of our game.
@@ -35,18 +36,20 @@ private:
 private:
 
 	//menuTexture es donde cargo el fondo del menu
-	Texture colorTexture;
+	Texture colorTexture, powersTexture;
 	VariableTexture maskTexture;
 	MaskedTexturedQuad *map;
+	TexturedQuad *powersQuad;
 	//menuText tendra tantos elementos como size (pos0 el fondo, pos1 el boton start...)
 	//zetaTextProgram es un shader para poder cargar cada elemento del menu con una zeta diferente en funcion de la distancia
 	//y que no haya problemas de zflighting
-	ShaderProgram simpleTexProgram, maskedTexProgram;
-	float currentTime;
-	glm::mat4 projection;
-	bool bmenu;
+	ShaderProgram simpleTexProgram, maskedTexProgram, zetaTextProgram;
+	float currentTime, centreX;
+	glm::mat4 projection, projection2;
+	bool bmenu, mapPressed;
 	Lemming lemming;
 	Menu menu;
+	PowersBar powersBar;
 
 };
 

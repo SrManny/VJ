@@ -37,7 +37,7 @@ void Menu::init(glm::mat4 projection) {
 	glm::vec2 texCoords[2] = { glm::vec2(0.f, 0.f), glm::vec2(1.f, 1.f) };
 
 	backQuad = TexturedQuad::createTexturedQuad(geom, texCoords, zetaTextProgram);
-	background.loadFromFile("images/fondo.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	background.loadFromFile("images/TitleScreen.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	background.setMinFilter(GL_NEAREST);
 	background.setMagFilter(GL_NEAREST);
 
@@ -131,8 +131,16 @@ void Menu::mouseMoved(int mouseX, int mouseY, bool bLeftButton) {
 }
 
 int Menu::mouseRelease(int button) {
-	if (overStart) return 2;
-	else if (overSelect) return 1;
+	if (overStart) {
+		startSprite = 0;
+		overStart = false;
+		return 2;
+	}
+	else if (overSelect) {
+		selectSprite = 0;
+		overSelect = false;
+		return 1;
+	}
 	return 0;
 }
 

@@ -19,10 +19,12 @@ public:
 	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram);
 	void update(int deltaTime, float centreX);
 	void render(glm::mat4 projection);
+
 	void mouseMoved(int mouseX, int mouseY, bool bLeftButton);
 	int  mouseRelease(int mouseX, int mouseY, int button);
 	void setMapMask(VariableTexture *mapMask);
 	bool intersecta(int mouseX, int mouseY);
+	int getTipus();
 	
 private:
 	int collisionFloor(int maxFall);
@@ -32,7 +34,8 @@ private:
 private:
 	enum LemmingState
 	{
-		WALKING_LEFT_STATE, WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE
+		WALKING_LEFT_STATE, WALKING_RIGHT_STATE, FALLING_LEFT_STATE, FALLING_RIGHT_STATE, DYING_STATE, DEATH_STATE, DIG_STATE, BASH_LEFT_STATE,
+		BASH_RIGHT_STATE, CLIMB_STATE, BUILD_LEFT_STATE, BUILD_RIGHT_STATE, EXPLODE_STATE, BLOCK_STATE, COLOR_BLOCK_STATE
 	};
 
 	LemmingState state;
@@ -46,6 +49,7 @@ private:
 	int boundingBox[4];
 	float centreX;
 	bool bselected, primero;
+	int tipusLemming;
 };
 
 

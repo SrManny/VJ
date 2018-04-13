@@ -81,7 +81,7 @@ void SelectLevels::init(glm::mat4 projection) {
 
 
 void SelectLevels::mouseMoved(int mouseX, int mouseY, bool bLeftButton) {
-
+	cout << "ola" << endl;
 	for (int i = 0; i < 1; ++i) {
 		bool aux1 = levelsButtonsQuads[i]->intersecta(mouseX, mouseY, levelsButtonsModel[i]);
 		if (aux1) {
@@ -100,6 +100,7 @@ void SelectLevels::mouseMoved(int mouseX, int mouseY, bool bLeftButton) {
 
 
 void SelectLevels::render() {
+	cout << "render de selectLevels" << endl;
 	glm::mat4 modelview;
 	zetaTextProgram.use();
 	zetaTextProgram.setUniformMatrix4f("projection", projection);
@@ -115,6 +116,7 @@ void SelectLevels::render() {
 		zetaTextProgram.setUniformMatrix4f("modelview", levelsButtonsModel[i]);
 		levelsButtonsQuads[i]->render(levelsButtons[i]);
 	}
+	cout << "Saliendo del render SelectLevels" << endl;
 	/*zetaTextProgram.setUniformMatrix4f("modelview", startModel);
 	zetaTextProgram.setUniform2f("zeta", 0.f, 0.5f);
 	startQuad[startSprite]->render(start[startSprite]);
@@ -127,6 +129,7 @@ int SelectLevels::mouseRelease(int button) {
 		if ((pressedButton[i] == 2) && (i == 0)) return i;
 		else if (pressedButton[i] == 2) return 3;
 	}
+
 	return 1;
 }
 

@@ -129,7 +129,7 @@ void PowersBar::init() {
 bool PowersBar::intersecta(int x, int y, glm::vec4 min, glm::vec4 max) {
 	return (((x < max[0]) && (x > min[0])) && ((y < max[1]) && (y > min[1])));
 }
-bool PowersBar::mouseMoved(int mouseX, int mouseY, bool bLeftButton) {
+int PowersBar::mouseMoved(int mouseX, int mouseY, bool bLeftButton) {
 	int* boundingBox = mapQuad->getboundingBox();
 	float xratio = 960 / CAMERA_WIDTH;
 	float yratio = (480 + 84) / (CAMERA_HEIGHT + 28);
@@ -151,7 +151,6 @@ bool PowersBar::mouseMoved(int mouseX, int mouseY, bool bLeftButton) {
 		mapSelectedMatrix = glm::mat4(1.0f);
 		if (mouseX > maxMapX) mouseX = maxMapX;
 	    if (mouseX < minMapX) mouseX = minMapX;
-		cout << "oliiii" << endl;
 		//Hay que trasladar en x un numero a ojo de pixeles
 		mapSelectedMatrix = glm::translate(mapSelectedMatrix, glm::vec3(mouseX / 3.f, (55.f / 84.f)*28.f + 160.f, 0.f));
 		mapSelectedMatrix = glm::translate(mapSelectedMatrix, glm::vec3(-((48.f / 648.f)*float(CAMERA_WIDTH)) / 2.0f, -mapsizeH / 2.f, 0.f));
@@ -159,9 +158,9 @@ bool PowersBar::mouseMoved(int mouseX, int mouseY, bool bLeftButton) {
 	}
 	return false;
 }
-bool PowersBar::mouseRelease(int button) {
+int PowersBar::mouseRelease(int button) {
 	overMap = false;
-	return true;
+	return 2.f;
 }
 void PowersBar::render() {
 	zetaTextProgram.use();

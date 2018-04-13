@@ -19,6 +19,7 @@ public:
 	void render(const Texture &tex) const;
 	void free();
 	int* getboundingBox();
+	bool intersecta(int mouseX, int mouseY, glm::mat4 model);
 
 private:
 	GLuint vao;

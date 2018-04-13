@@ -15,8 +15,8 @@ public:
 	void init();
 	void render();
 
-	bool mouseMoved(int mouseX, int mouseY, bool bLeftButton);
-	bool mouseRelease(int button);
+	int mouseMoved(int mouseX, int mouseY, bool bLeftButton);
+	int mouseRelease(int button);
 
 private:
 	void initShaders();

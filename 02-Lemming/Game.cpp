@@ -67,13 +67,14 @@ void Game::mousePress(int button)
 	}
 }
 
-void Game::mouseRelease(int button)
+int Game::mouseRelease(int x, int y, int button)
 {
-	scene.mouseRelease(button);
+	int res = scene.mouseRelease(x, y, button);
 	if(button == GLUT_LEFT_BUTTON)
 		bLeftMouse = false;
 	else if(button == GLUT_RIGHT_BUTTON)
 		bRightMouse = false;
+	return res;
 }
 
 bool Game::getKey(int key) const

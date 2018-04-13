@@ -43,7 +43,18 @@ void TexturedQuad::render(const Texture &tex) const
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glDisable(GL_TEXTURE_2D);
 }
-
+bool TexturedQuad::intersecta(int mouseX, int mouseY, glm::mat4 model) {
+	int* boundingBox = getboundingBox();
+	float xratio = 960 / CAMERA_WIDTH;
+	float yratio = (480 + 84) / (CAMERA_HEIGHT + 28);
+	glm::vec4 min = model * glm::vec4(boundingBox[0], boundingBox[1], 0.5f, 1.0f);
+	glm::vec4 max = model * glm::vec4(boundingBox[2], boundingBox[3], 0.5f, 1.0f);
+	min.x = min.x*xratio;
+	min.y = min.y*yratio;
+	max.x = max.x*xratio;
+	max.y = max.y*yratio;
+	return (((mouseX < max[0]) && (mouseX > min[0])) && ((mouseY < max[1]) && (mouseY > min[1])));
+}
 void TexturedQuad::free()
 {
 	glDeleteBuffers(1, &vbo);

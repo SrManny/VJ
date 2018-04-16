@@ -28,14 +28,16 @@ public:
 	int getTipus();
 	void keyReleased(int key);
 	void keyPressed(int key);
-
+	bool getIfSelected();
 	void explosion(glm::vec2 pos);
 	void bash(glm::vec2 pos, int ind);
 	void build(glm::vec2 pos, int ind);
+	bool canDoAction(int request);
+	void doAction(int request);
 	
 private:
 	int collisionFloor(int maxFall);
-	bool collision();
+	bool collision(int offset);
 	int* getboundingBox();
 	void initShaders();
 
@@ -54,7 +56,7 @@ private:
 	ShaderProgram zetaTextProgram;
 	glm::mat4 modelView;
 	int lemmingClicked;
-	int boundingBox[4];
+	int boundingBox[4], powers[12];
 	float centreX;
 	bool bselected, primero;
 	int tipusLemming;

@@ -2,6 +2,7 @@
 #define _SELECTLEVELS_INCLUDE
 
 #include <iostream>
+#include <list>
 #include <glm/glm.hpp>
 #include "ShaderProgram.h"
 #include "TexturedQuad.h"
@@ -28,7 +29,7 @@ private:
 	ShaderProgram zetaTextProgram;
 	glm::mat4 projection;
 	//0 normal, 1 raton encima, 2 clik en el boton
-
+	string imageLoc[4];
 	//-1 nada, 0 nivel 1, 1 nivel 2, 2 nivel 3, 3 volver al menu
 	int pressedButton[4];
 	//start is pressed

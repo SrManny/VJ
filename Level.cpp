@@ -19,16 +19,62 @@ void Level::initMatrixs() {
 	fastForwardModel = glm::mat4(1.0f);
 	fastForwardModel = glm::translate(fastForwardModel, glm::vec3(305.f, 30.f / 2.f, 0.f));
 	fastForwardModel = glm::translate(fastForwardModel, glm::vec3(-25.f / 2.f, -25.f / 2.f, 0.f));
+	float centreX = float(CAMERA_WIDTH)*16.f / 648.f;
+	float centreY = 28.f*35.f / 84.f;
+	for (int i = 0; i < 3; ++i) {
+		timeMatrix[i] = glm::mat4(1.0f);
+		timeMatrix[i] = glm::translate(timeMatrix[i], glm::vec3(((576.f + 16.f*i) / 648.f)*320.f, 28.f*(14.f / 84.f) + 160.f, 0.f));
+		timeMatrix[i] = glm::translate(timeMatrix[i], glm::vec3(-centreX / 2.f, -centreY / 2.f, 0.f));
+		outLemmingsMatrix[i] = glm::mat4(1.0f);
+		outLemmingsMatrix[i] = glm::translate(outLemmingsMatrix[i], glm::vec3(((290.f+16.f*i)/648.f)*320.f, 28.f*(14.f/84.f)+160.f, 0.f));
+		outLemmingsMatrix[i] = glm::translate(outLemmingsMatrix[i], glm::vec3(-centreX / 2.f, -centreY / 2.f, 0.f));
+		inLemmingsMatrix[i] = glm::mat4(1.0f);
+		inLemmingsMatrix[i] = glm::translate(inLemmingsMatrix[i], glm::vec3(((415.f + 16.f*i) / 648.f)*320.f, 28.f*(14.f / 84.f) + 160.f, 0.f));
+		inLemmingsMatrix[i] = glm::translate(inLemmingsMatrix[i], glm::vec3(-centreX/2.f,-centreY/ 2.f, 0.f));
+	}
 }
 
 void Level::keypressed(int key) {
-	lemming.keyPressed(key);
+	for (int i = 0; i < 1; ++i) {
+		lemmings[i].keyPressed(key);
+	}
+}
+
+void Level::renderScore() {
+	int aux0 = out;
+	for (int i = 0; i < 3; ++i) {
+		int div = pow(10, 3 - i - 1);
+		int digit = aux0 / div;
+		zetaTextProgram.setUniformMatrix4f("modelview", outLemmingsMatrix[i]);
+		numbersQuad[digit]->render(numbers);
+		aux0 = aux0 % div;
+	}
+	int aux1 = (survived / winPikmins)*100;
+	for (int i = 0; i < 3; ++i) {
+		int div = pow(10, 3 - i - 1);
+		int digit = aux1 / div;
+		zetaTextProgram.setUniformMatrix4f("modelview", inLemmingsMatrix[i]);
+		numbersQuad[digit]->render(numbers);
+		aux1 = aux1 % div;
+	}
+
+	int aux2 = Time;
+	for (int i = 0; i < 3; ++i) {
+		if (Time >= 0) {
+			int div = pow(10, 3 - i - 1);
+			int digit = aux2 / div;
+			zetaTextProgram.setUniformMatrix4f("modelview", timeMatrix[i]);
+			numbersQuad[digit]->render(numbers);
+			aux2 = aux2 % div;
+		}
+	}
 }
 
 void Level::init(int nLevel)
 {
 	inCentreX = 0.f;
 	speed = 1;
+	second = 0.f;
 	this->nLevel = nLevel;
 	setValues();
 	initShaders();
@@ -55,22 +101,33 @@ void Level::init(int nLevel)
 	projectionButtons = glm::ortho(0.f, float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1 + 28), 0.f);
 	projection2 = glm::ortho(offsetxLevel, float(offsetxLevel + 320.f - 1), float(160.f - 1 + 28), 0.f);
 	projection = glm::ortho(0.f, float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1 + 28), 0.f);
-	lemming.init(glm::vec2(60, 30), simpleTexProgram);
-	++actualment[lemming.getTipus()];
-	lemming.setMapMask(&maskTexture);
-	lemmings.push_back(lemming);
+	glm::vec2 geomNumbers[2] = { glm::vec2(0.f, 0.f), glm::vec2(float(CAMERA_WIDTH)*16.f / 648.f,28.f*35.f / 84.f) };
+	for (int i = 0; i < 10; ++i) {
+		glm::vec2 texCoordNum[2] = { glm::vec2(i*24.f/240.f, 0.f), glm::vec2((i*24.f+24.f) / 240.f,1.f) };
+		numbersQuad[i] = TexturedQuad::createTexturedQuad(geomNumbers, texCoordNum, zetaTextProgram);	//Inicializamos el menu y el powerBar
+	}
+	numbers.loadFromFile("images/Buttons/numeros3.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	numbers.setMinFilter(GL_NEAREST);
+	numbers.setMagFilter(GL_NEAREST);
+	for (int i = 0; i < 1; ++i) {
+		lemmings[i].init(glm::vec2(80, 50), simpleTexProgram);
+		++actualment[lemmings[i].getTipus()];
+		lemmings[i].setMapMask(&maskTexture);
+		lemmingsSelected[i] == false;
+	}
 }
 
 void Level::setValues() {
 	if (nLevel == 1) {
 		maxPikmins = 50;
+		out = 407;
 		LevelTextureLocation = "images/fun1.png";
 		LevelMaskLocation = "images/fun1_mask.png";
 		spawnPoint = glm::vec2(60, 30);
 		exitPoint = glm::vec2(60, 80);
 		Time = 650;
 		survived = 0;
-		maxPikmins = 50;
+		winPikmins = 10;
 		offsetxLevel = 120.f;
 		sizeOfLevel = 512.f;
 	}
@@ -134,7 +191,8 @@ void Level::render() {
 	modelview = glm::mat4(1.0f);
 	//modelview = glm::translate(modelview, glm::vec3(currentTime / 1000.f, 0.f, 0.f));
 	simpleTexProgram.setUniformMatrix4f("modelview", modelview);
-	lemming.render(projection);
+	for (int i = 0; i < 1; ++i) lemmings[i].render(projection);
+
 	zetaTextProgram.use();
 	zetaTextProgram.setUniformMatrix4f("projection", projectionButtons);
 	zetaTextProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
@@ -142,21 +200,48 @@ void Level::render() {
 	//modelview = glm::translate(modelview, glm::vec3(currentTime / 1000.f, 0.f, 0.f));
 	zetaTextProgram.setUniformMatrix4f("modelview", fastForwardModel);
 	fastForwardQuad->render(fastForwardButton);
+	//renderTime();
+	renderScore();
 	//for (unsigned int i = 0; i < lemmings.size(); ++i);
 		//lemmings[i].render();
 }
 
 void Level::update(int deltaTime)
 {
-	lemming.update(deltaTime, inCentreX);
-	for (unsigned int i = 0; i < lemmings.size(); ++i);
-		//lemmings[i].update(deltaTime);
+	second += 1 / float(deltaTime);
+	if (second > 1) {
+		second = 0;
+		--Time;
+	}
+	int request = powersBar.getPowersBarRequest();
+	if (request != -1) {
+		int stateAction = powersBar.getPowersBarState(request);
+		int total = 0;
+		for (int i = 0; i < 1; ++i) {
+			if (lemmings[i].getIfSelected() && lemmings[i].canDoAction(request)) {
+				lemmingsSelected[i] = true;
+				++total;
+			}
+		}
+		//fallamos intentando realizar un poder
+		if (total > stateAction) {
+			//Ruido de fallo
+		}
+		else {
+			for (int i = 0; i < 1; ++i) if (lemmingsSelected[i]) lemmings[i].doAction(request);
+			powersBar.setSpendPowers(request, total);
+		}
+		powersBar.finishRequest();
+	}
+	//ola.update(deltaTime, inCentreX);
+	for (unsigned int i = 0; i < 1; ++i)
+		lemmings[i].update(deltaTime,inCentreX);
+	cout << deltaTime << endl;
 }
 
 void Level::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton)
 {
-	lemming.mouseMoved(mouseX, mouseY, bLeftButton);
-	mapPressed = powersBar.mouseMoved(mouseX, mouseY, bLeftButton);
+	for (int i = 0; i < 1; ++i ) lemmings[i].mouseMoved(mouseX, mouseY, bLeftButton);
 	mapPressed = powersBar.mouseMoved(mouseX, mouseY, bLeftButton);
 	if (mapPressed) {
 		inCentreX = mouseX - (524.f / 648.f)*960.f;
@@ -174,13 +259,13 @@ void Level::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 
 void Level::mouseRelease(int mouseX, int mouseY, int button)
 {
-	powersBar.mouseRelease(button);
+	powersBar.mouseRelease(mouseX, mouseY,button);
 	bool intersectaFast = fastForwardQuad->intersecta(mouseX, mouseY, fastForwardModel);
 	if (intersectaFast) {
 		if (speed == 4) speed = 1;
 		else speed *= 2;
 	}
-	lemming.mouseRelease(mouseX, mouseY, button);
+	for (int i = 0; i < 1; ++i) lemmings[i].mouseRelease(mouseX, mouseY, button);
 }
 
 void Level::initShaders()

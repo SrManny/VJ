@@ -72,10 +72,13 @@ int Scene::mouseRelease(int mouseX, int mouseY, int button) {
 		level.mouseRelease(mouseX, mouseY, button);
 		speed = level.getSpeed();
 	}
-	if (escenario == 1) escenario = selectLevels.mouseRelease(button);
+	if (escenario == 1) {
+		escenario = selectLevels.mouseRelease(button);
+		if (escenario == 2) level.init(escenario-1);
+	}
 	else if (escenario == 0) {
 		escenario = menu.mouseRelease(button);
-		if (escenario == 2) level.init(1);
+		if (escenario > 1) level.init(escenario-1);
 	}
 	return speed;
 }

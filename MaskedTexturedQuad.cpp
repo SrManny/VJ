@@ -29,7 +29,23 @@ MaskedTexturedQuad::MaskedTexturedQuad(glm::vec2 geom[2], glm::vec2 texCoords[2]
 	texCoordLocation = program.bindVertexAttribute("texCoord", 2, 4*sizeof(float), (void *)(2*sizeof(float)));
 }
 
-void MaskedTexturedQuad::render(ShaderProgram &program, const Texture &tex, const VariableTexture &mask) const
+/*void MaskedTexturedQuad::render(ShaderProgram &program, const Texture &tex, const VariableTexture &mask) const
+{
+	glEnable(GL_TEXTURE_2D);
+	program.setTextureUnit("tex", 0);
+	glActiveTexture(GL_TEXTURE0);
+	tex.use();
+	program.setTextureUnit("mask", 1);
+	glActiveTexture(GL_TEXTURE1);
+	mask.use();
+	glBindVertexArray(vao);
+	glEnableVertexAttribArray(posLocation);
+	glEnableVertexAttribArray(texCoordLocation);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDisable(GL_TEXTURE_2D);
+}*/
+
+void MaskedTexturedQuad::render(ShaderProgram &program, const VariableTexture &tex, const VariableTexture &mask) const
 {
 	glEnable(GL_TEXTURE_2D);
 	program.setTextureUnit("tex", 0);

@@ -38,11 +38,20 @@ unsigned int x = 0;
 void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
-	if (escenario == 2) level.update(deltaTime);
+	if (escenario == 2) {
+		level.update(deltaTime);
+		int aux = level.WantToGoBack();
+		if (aux == 1) escenario = 0;
+	}
 }
 void Scene::keypressed(int key) {
 	if (escenario == 2) level.keypressed(key);
 }
+
+void Scene::keyreleased(int key) {
+	if (escenario == 2) level.keyreleased(key);
+}
+
 void Scene::render()
 {
 	//Cargo el Menu: la imagen de fondo, (en un futuro los botones)...

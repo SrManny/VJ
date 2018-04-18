@@ -13,13 +13,15 @@ PowersBar::~PowersBar()
 
 void PowersBar::renderPowerStates() {
 	for (int i = 0; i < 12; ++i) {
-		int aux0 = actionButtonState[i];
-		for (int j = 0; j < 2; ++j) {
-			int div = pow(10, 2 - j - 1);
-			int digit = aux0 / div;
-			zetaTextProgram.setUniformMatrix4f("modelview", powersState[i][j]);
-			numbersQuad[digit]->render(numbers);
-			aux0 = aux0 % div;
+		if (i != 10) {
+			int aux0 = actionButtonState[i];
+			for (int j = 0; j < 2; ++j) {
+				int div = pow(10, 2 - j - 1);
+				int digit = aux0 / div;
+				zetaTextProgram.setUniformMatrix4f("modelview", powersState[i][j]);
+				numbersQuad[digit]->render(numbers);
+				aux0 = aux0 % div;
+			}
 		}
 	}
 }
@@ -96,9 +98,9 @@ void PowersBar::loadActionButtonsImages() {
 	actionButton[9].setMinFilter(GL_NEAREST);
 	actionButton[9].setMagFilter(GL_NEAREST);
 
-	actionButton[10].loadFromFile("images/Buttons/NukeButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	/*actionButton[10].loadFromFile("images/Buttons/NukeButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	actionButton[10].setMinFilter(GL_NEAREST);
-	actionButton[10].setMagFilter(GL_NEAREST);
+	actionButton[10].setMagFilter(GL_NEAREST);*/
 
 	actionButton[11].loadFromFile("images/Buttons/NukeButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	actionButton[11].setMinFilter(GL_NEAREST);
@@ -107,6 +109,7 @@ void PowersBar::loadActionButtonsImages() {
 
 void PowersBar::init() {
 	level = 0;
+	paused = 1;
 	overMap = false;
 	initShaders();
 	projection = glm::ortho(0.f, float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1 + 29), 0.f);
@@ -123,6 +126,13 @@ void PowersBar::init() {
 	glm::vec2 texCoords[2] = { glm::vec2(0.f, 0.f), glm::vec2(1.f, 1.f) };
 	barQuad = TexturedQuad::createTexturedQuad(geomPowers, texCoords, zetaTextProgram);
 	mapQuad = TexturedQuad::createTexturedQuad(geomMaps, texCoords, zetaTextProgram);
+	pauseStop[0].loadFromFile("images/Buttons/Stop.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	pauseStop[0].setMinFilter(GL_NEAREST);
+	pauseStop[0].setMagFilter(GL_NEAREST);
+
+	pauseStop[1].loadFromFile("images/Buttons/Play.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	pauseStop[1].setMinFilter(GL_NEAREST);
+	pauseStop[1].setMagFilter(GL_NEAREST);
 	mapSelectedQuad = TexturedQuad::createTexturedQuad(geomMapSelected, texCoords, zetaTextProgram);
 	for (int i = 0; i < 12; ++i) {
 		actionButtonQuad[i] = TexturedQuad::createTexturedQuad(geomActionButton, texCoords, zetaTextProgram);
@@ -150,6 +160,7 @@ void PowersBar::init() {
 	mapSelectedTexture.loadFromFile("images/mapSelected.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	mapSelectedTexture.setMinFilter(GL_NEAREST);
 	mapSelectedTexture.setMagFilter(GL_NEAREST);
+
 	glm::vec2 geomNumbers[2] = { glm::vec2(0.f, 0.f), glm::vec2(float(CAMERA_WIDTH)*11.f / 648.f,28.f*17.f / 84.f) };
 	for (int i = 0; i < 10; ++i) {
 		glm::vec2 texCoordNum[2] = { glm::vec2(i*24.f / 240.f, 0.f), glm::vec2((i*24.f + 24.f) / 240.f,1.f) };
@@ -185,9 +196,13 @@ int PowersBar::mouseMoved(int mouseX, int mouseY, bool bLeftButton) {
 }
 int PowersBar::mouseRelease(int mouseX, int mouseY, int button) {
 	for (int i = 0; i < 12; ++i) {
-		if (actionButtonState[i] > 0) {
+		if (actionButtonState[i] >= 0) {
 			bool inter = actionButtonQuad[i]->intersecta(mouseX, mouseY, buttonsMatrix[i]);
-			if (inter) actionRequest = i;
+			if (inter && (i == 10)) {
+				paused = 1 - paused;
+				break;
+			}
+			else if (inter) actionRequest = i;
 		}
 	}
 	overMap = false;
@@ -203,6 +218,9 @@ void PowersBar::finishRequest() {
 	actionRequest = -1;
 }
 
+int PowersBar::getPaused() {
+	return paused;
+}
 void PowersBar::setSpendPowers(int request, int spend) {
 	actionButtonState[request] -= spend;
 }
@@ -221,7 +239,10 @@ void PowersBar::render() {
 	zetaTextProgram.setUniform2f("zeta", 0.f, 0.0f);
 	for (int i = 0; i < 12; ++i) {
 		zetaTextProgram.setUniformMatrix4f("modelview", buttonsMatrix[i]);
-		actionButtonQuad[i]->render(actionButton[i]);
+		if (i == 10) {
+			actionButtonQuad[i]->render(pauseStop[paused]);
+		}
+		else actionButtonQuad[i]->render(actionButton[i]);
 	}
 	renderPowerStates();
 }

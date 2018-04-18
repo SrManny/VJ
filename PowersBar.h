@@ -19,6 +19,7 @@ public:
 	int mouseRelease(int mouseX, int mouseY, int button);
 	int getPowersBarRequest();
 	int getPowersBarState(int request);
+	int getPaused();
 	void finishRequest();
 	void setSpendPowers(int request, int spend);
 
@@ -30,11 +31,11 @@ private:
 	void renderPowerStates();
 
 private:
-	Texture barTexture, start[3], map[3], mapSelectedTexture, actionButton[12], numbers;
+	Texture barTexture, start[3], map[3], mapSelectedTexture, actionButton[12], numbers, pauseStop[2];
 	TexturedQuad *barQuad, *startQuad[3], *mapQuad, *mapSelectedQuad, *actionButtonQuad[12], *numbersQuad[10];
 	ShaderProgram zetaTextProgram;
 	glm::mat4 projection;
-	int level, actionButtonState[12];
+	int level, actionButtonState[12], paused;
 	int actionRequest;
 	float mapsizeW, mapsizeH;
 	bool overMap;

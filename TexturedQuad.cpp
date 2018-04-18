@@ -43,6 +43,8 @@ void TexturedQuad::render(const Texture &tex) const
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glDisable(GL_TEXTURE_2D);
 }
+
+
 bool TexturedQuad::intersecta(int mouseX, int mouseY, glm::mat4 model) {
 	int* boundingBox = getboundingBox();
 	float xratio = 960 / CAMERA_WIDTH;

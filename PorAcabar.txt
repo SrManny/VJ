@@ -1,0 +1,34 @@
+Poderes:
+	- Arreglar animación Explode (MÁÁV)
+	- Hacer stopper (MÁÁV)
+	- Hacer stopper por color (MÁÁV)
+	- Hacer climb (MÁÁV)
+	- Hacer morir un Pikmin (que no explotarlos todos) (MÁÁV)
+Menú select:
+	- Hacer botón para cada nivel (imagen) (MÁÁV)
+	- Hacer dos botones más, uno para cada nivel
+Title Screen: 
+	- Centrar los botones
+	- Añadir botón para escena controles
+	- Añadir botón para escena créditos
+Level: 
+	- Adecuar la textura de inicio y meta al program que toca
+	- Hacer una salida funcional
+	- Al acabar el nivel que te vaya al siguiente nivel o a pantalla de resultados. 
+	- En el segundo o tercer nivel, poner una trampa de fuego, para poder enseñar el stopper por colores. 
+Scene:
+	- Hacer escena donde se dicen los resultados del nivel, si es necesario. 
+	- Escena para mostrar controles
+	- Escena para mostrar los créditos
+PowersBar: 
+	- Arreglar iconos para que se vean mejor (imagenes) (MÁÁV)
+	- Poner los botones para spawnear el tipo de Pikmin por color.
+	- Que cada botón haaga su acción
+	- Si da tiempo, que un botón al clicarlo sobre lemming que ya hace esa acción, pare de hacerla
+Trampas: 
+	- Crear la clase trampa (MÁÁV)
+Switch:
+	- Crear la clase switch/botón para desactivar trampas (MÁÁV)
+General: 
+	- Como meter música en el juego
+	- Botón pause (Podríamos poner un "PAUSE" grande en medio la pantalla) 

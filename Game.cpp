@@ -7,7 +7,7 @@ void Game::init()
 {
 	bPlay = true;
 	bLeftMouse = bRightMouse = false;
-	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	scene.init();
 }
 
@@ -34,6 +34,7 @@ void Game::keyPressed(int key)
 
 void Game::keyReleased(int key)
 {
+	//scene.keyreleased(key);
 	keys[key] = false;
 }
 

@@ -16,13 +16,14 @@ class Lemming
 {
 
 public:
-	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram);
+	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, int tipus);
 	void update(int deltaTime, float centreX);
 	void render(glm::mat4 projection);
 
 	void mouseMoved(int mouseX, int mouseY, bool bLeftButton);
 	int  mouseRelease(int mouseX, int mouseY, int button);
 	void setMapMask(VariableTexture *mapMask);
+	void setMapColor(VariableTexture * mapColor);
 	void eraseMask(glm::vec2 pos);
 	bool intersecta(int mouseX, int mouseY);
 	int getTipus();
@@ -31,9 +32,12 @@ public:
 	bool getIfSelected();
 	void explosion(glm::vec2 pos);
 	void bash(glm::vec2 pos, int ind);
+	void dig(glm::vec2 pos);
 	void build(glm::vec2 pos, int ind);
 	bool canDoAction(int request);
 	void doAction(int request);
+
+	void die(); 
 	
 private:
 	int collisionFloor(int maxFall);
@@ -52,7 +56,7 @@ private:
 	Texture spritesheet, selected[2];
 	TexturedQuad *selectedLemmingQuad;
 	Sprite *sprite;
-	VariableTexture *mask;
+	VariableTexture *mask, *color;
 	ShaderProgram zetaTextProgram;
 	glm::mat4 modelView;
 	int lemmingClicked;

@@ -28,6 +28,7 @@ public:
 	void mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton);
 	int mouseRelease(int x, int y, int button);
 	void keypressed(int key);
+	void keyreleased(int key);
 
 public:
 	void eraseMask(int mouseX, int mouseY);

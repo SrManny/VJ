@@ -48,7 +48,7 @@ void Menu::init(glm::mat4 projection) {
 	start[0].loadFromFile("images/startButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	start[0].setMinFilter(GL_NEAREST);
 	start[0].setMagFilter(GL_NEAREST);
-	select[0].loadFromFile("images/startButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	select[0].loadFromFile("images/selectStage.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	select[0].setMinFilter(GL_NEAREST);
 	select[0].setMagFilter(GL_NEAREST);
 
@@ -58,7 +58,7 @@ void Menu::init(glm::mat4 projection) {
 	start[1].loadFromFile("images/startButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	start[1].setMinFilter(GL_NEAREST);
 	start[1].setMagFilter(GL_NEAREST);
-	select[1].loadFromFile("images/startButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	select[1].loadFromFile("images/selectStage.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	select[1].setMinFilter(GL_NEAREST);
 	select[1].setMagFilter(GL_NEAREST);
 
@@ -68,7 +68,7 @@ void Menu::init(glm::mat4 projection) {
 	start[2].loadFromFile("images/startButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	start[2].setMinFilter(GL_NEAREST);
 	start[2].setMagFilter(GL_NEAREST);
-	select[2].loadFromFile("images/startButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	select[2].loadFromFile("images/selectStage.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	select[2].setMinFilter(GL_NEAREST);
 	select[2].setMagFilter(GL_NEAREST);
 }

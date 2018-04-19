@@ -25,16 +25,16 @@ private:
 	bool intersecta(int x, int y, glm::vec4 min, glm::vec4 max);
 
 private:
-	Texture background, start[3], select[3];
-	TexturedQuad *backQuad, *startQuad[3], *selectQuad[3];
+	Texture background, start[3], select[3], insButton, instructions, exitIns;
+	TexturedQuad *backQuad, *startQuad[3], *selectQuad[3], *insQuad[3], *exitInsQuad[3];
 	ShaderProgram zetaTextProgram;
 	glm::mat4 projection;
 	sf::Music osts;
 	//0 normal, 1 raton encima, 2 clik en el boton
-	int startSprite, selectSprite;
+	int startSprite, selectSprite, insSprite, exitInsSprite;
 	//start is pressed
-	bool overStart, overSelect;
-	glm::mat4 startInvMatrix, startModel, selectMatrix, selectModel;
+	bool overStart, overSelect, overIns, overExit, insPressed;
+	glm::mat4 startInvMatrix, startModel, selectMatrix, selectModel, insMatrix, exitInsMatrix;
 };
 
 #endif

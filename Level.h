@@ -34,7 +34,7 @@ public:
 
 	void spawnPikmin(int tipus); 
 
-public:
+private:
 	Texture  powersTexture, fastForwardButton, numbers, spawn, exit, pausedTexture, loseTextures[2], gameOverTexture, winTexture, winTextures[2];
 	VariableTexture colorTexture, maskTexture;
 	MaskedTexturedQuad *map;
@@ -43,7 +43,7 @@ public:
 	bool overBackMenu, overRetry;
 	sf::Music ost, gameOverSong, winSong;
 	Lemming lemmings[1];
-	Lemming PikminAux; 
+	Lemming PikminAux;
 	vector<Lemming> vPik;
 	bool lemmingsSelected[1];
 	int maxPikmins, winPikmins, paused, weLost, weWantToGoBack, weWin;

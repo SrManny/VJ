@@ -30,7 +30,6 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 	spritesheet.loadFromFile("images/Pikmin.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	spritesheet.setMinFilter(GL_NEAREST);
 	spritesheet.setMagFilter(GL_NEAREST);
-
 	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.125 / 2.f, 0.25 / 2), &spritesheet, &shaderProgram);
 	//tipusLemming = rand() % 4;
 	tipusLemming = tipus;
@@ -233,9 +232,7 @@ void Lemming::update(int deltaTime, float centreX)
 			if (fall > 2)
 				state = FALLING_LEFT_STATE;
 		}
-		else {
-			bash(sprite->position(), -1);
-		}
+		else bash(sprite->position(), -1);
 		break;
 
 	case BASH_RIGHT_STATE:
@@ -370,6 +367,7 @@ void Lemming::render(glm::mat4 projection)
 		//modelview = glm::translate(modelview, glm::vec3(currentTime / 1000.f, 0.f, 0.f));
 		modelView = glm::mat4(1.0f);
 		glm::vec2 pos = sprite->position();
+		//cout << "Position of first lemming selected " << pos.x << " " << pos.y << endl;
 		modelView = glm::translate(modelView, glm::vec3(pos.x + 8.f, pos.y + 8.f, 0.f));
 		modelView = glm::translate(modelView, glm::vec3(-16.f / 2.f, -16.f / 2.f, 0.f));
 		zetaTextProgram.setUniformMatrix4f("modelview", modelView);

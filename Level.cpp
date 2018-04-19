@@ -272,8 +272,8 @@ void Level::setValues() {
 		LevelMaskLocation = "images/fun1_mask.png";
 		spawnPoint = glm::vec2(60, 30);
 		exitPoint = glm::vec2(216, 100);
-		Time = 3;
-		survived = 10;
+		Time = 100;
+		survived = 0;
 		winPikmins = 10;
 		offsetxLevel = 120.f;
 		sizeOfLevel = 512.f;
@@ -390,16 +390,15 @@ void Level::render() {
 		map->render(maskedTexProgram, colorTexture, maskTexture);
 
 
-		simpleTexProgram.use();
-
-		//projection = glm::translate(projection, glm::vec3(currentTime / 2000.f, 0.f, 0.f));
-		simpleTexProgram.setUniformMatrix4f("projection", projection);
-		simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-		modelview = glm::mat4(1.0f);
 		//modelview = glm::translate(modelview, glm::vec3(currentTime / 1000.f, 0.f, 0.f));
-		simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 		//for (int i = 0; i < 1; ++i) lemmings[i].render(projection);
 		for (int i = 0; i < vPik.size(); ++i) {
+			simpleTexProgram.use();
+			//projection = glm::translate(projection, glm::vec3(currentTime / 2000.f, 0.f, 0.f));
+			simpleTexProgram.setUniformMatrix4f("projection", projection);
+			simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+			modelview = glm::mat4(1.0f);
+			simpleTexProgram.setUniformMatrix4f("modelview", modelview);
 			vPik[i].render(projection);
 		}
 
@@ -662,10 +661,10 @@ void Level::spawnPikmin(int tipus)
 		++actualment[tipus];
 		PikminAux.setMapColor(&colorTexture);
 		PikminAux.setMapMask(&maskTexture);
-		lemmingsSelected[0] == false;
+		lemmingsSelected[vPik.size()] == false;
 		++out;
+		vPik.push_back(PikminAux);
 	}
-	vPik.push_back(PikminAux);
 }
 
 int Level::WantToGoBack() {

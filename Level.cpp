@@ -16,75 +16,105 @@ Level::~Level()
 }
 
 void Level::initMatrixs() {
+	float centreX = float(CAMERA_WIDTH)*16.f / 648.f;
+	float centreY = 28.f*35.f / 84.f;
+	float centreX2 = float(CAMERA_WIDTH)*20.f / 648.f;
+	float centreY2 = 28.f*40.f / 84.f;
 	fastForwardModel = glm::mat4(1.0f);
 	fastForwardModel = glm::translate(fastForwardModel, glm::vec3(305.f, 30.f / 2.f, 0.f));
 	fastForwardModel = glm::translate(fastForwardModel, glm::vec3(-25.f / 2.f, -25.f / 2.f, 0.f));
 
-	spawnModel = glm::mat4(1.0f); 
-	spawnModel = glm::translate(spawnModel, glm::vec3(spawnPoint[0]+12,spawnPoint[1], 0.f));
-	
+	spawnModel = glm::mat4(1.0f);
+	spawnModel = glm::translate(spawnModel, glm::vec3(spawnPoint[0] + 12, spawnPoint[1], 0.f));
+
 	exitModel = glm::mat4(1.0f);
 	exitModel = glm::translate(exitModel, glm::vec3(exitPoint[0] + 12, exitPoint[1], 0.f));
 
 	pausedMatrix = glm::mat4(1.0f);
 	pausedMatrix = glm::translate(pausedMatrix, glm::vec3(150.f, 80.f, 0.f));
 	pausedMatrix = glm::translate(pausedMatrix, glm::vec3(-100.f / 2.f, -50.f / 2.f, 0.f));
-
+	for (int i = 0; i < 3; ++i) 
+		for (int j = 0; j < 3; ++j) {
+			resultMatrix[i][j] = glm::mat4(1.0f);
+			resultMatrix[i][j] = glm::translate(resultMatrix[i][j], glm::vec3((650.f + j*25)*320.f/960.f, (193.f + i*84.f)/564.f*188.f, 0.f));
+			resultMatrix[i][j] = glm::translate(resultMatrix[i][j], glm::vec3(-centreX2 / 2.f, -centreY2 / 2.f, 0.f));
+		}
 	for (int i = 0; i < 2; ++i) {
 		loseMatrix[i] = glm::mat4(1.0f);
-		loseMatrix[i] = glm::translate(loseMatrix[i], glm::vec3(150.f, 80.f + i*40.f, 0.f));
-		loseMatrix[i] = glm::translate(loseMatrix[i], glm::vec3(-100.f / 2.f, -40.f / 2.f, 0.f));
+		loseMatrix[i] = glm::translate(loseMatrix[i], glm::vec3((239.f/960.f)*320.f + i*(480.f/960.f)*320.f, (502.f/564.f)*188.f, 0.f));
+		loseMatrix[i] = glm::translate(loseMatrix[i], glm::vec3(-320.f*(202.f / 960.f)/2.f, -((538 - 465) / 564.f)*188.f/2.f, 0.f));
 	}
 
-	float centreX = float(CAMERA_WIDTH)*16.f / 648.f;
-	float centreY = 28.f*35.f / 84.f;
 	for (int i = 0; i < 3; ++i) {
 		timeMatrix[i] = glm::mat4(1.0f);
 		timeMatrix[i] = glm::translate(timeMatrix[i], glm::vec3(((576.f + 16.f*i) / 648.f)*320.f, 28.f*(14.f / 84.f) + 160.f, 0.f));
 		timeMatrix[i] = glm::translate(timeMatrix[i], glm::vec3(-centreX / 2.f, -centreY / 2.f, 0.f));
 		outLemmingsMatrix[i] = glm::mat4(1.0f);
-		outLemmingsMatrix[i] = glm::translate(outLemmingsMatrix[i], glm::vec3(((290.f+16.f*i)/648.f)*320.f, 28.f*(14.f/84.f)+160.f, 0.f));
+		outLemmingsMatrix[i] = glm::translate(outLemmingsMatrix[i], glm::vec3(((290.f + 16.f*i) / 648.f)*320.f, 28.f*(14.f / 84.f) + 160.f, 0.f));
 		outLemmingsMatrix[i] = glm::translate(outLemmingsMatrix[i], glm::vec3(-centreX / 2.f, -centreY / 2.f, 0.f));
 		inLemmingsMatrix[i] = glm::mat4(1.0f);
 		inLemmingsMatrix[i] = glm::translate(inLemmingsMatrix[i], glm::vec3(((415.f + 16.f*i) / 648.f)*320.f, 28.f*(14.f / 84.f) + 160.f, 0.f));
-		inLemmingsMatrix[i] = glm::translate(inLemmingsMatrix[i], glm::vec3(-centreX/2.f,-centreY/ 2.f, 0.f));
+		inLemmingsMatrix[i] = glm::translate(inLemmingsMatrix[i], glm::vec3(-centreX / 2.f, -centreY / 2.f, 0.f));
 	}
 }
 
 void Level::keypressed(int key) {
 	switch (key) {
-		case 101: //EXPLOSION, Key: e
-			for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
-			break;
-		case 49: //BASH, Key: 1
-			for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
-			break;
-		case 50: //BUILD, Key: 2
-			for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
-			break;
-		case 51: //DIG, Key: 3
-			for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
-			break;
-		case 122: //SPAWN RED, KEY: z
-			spawnPikmin(0);
-			break;
-		case 120: //SPAWN BLUE, KEY: x
-			spawnPikmin(1);
-			break;
-		case 99: //SPAWN YELLOW, KEY: c
-			spawnPikmin(2);
-			break;
-		case 118: //SPAWN PURPLE, KEY: v
-			spawnPikmin(3);
-			break;
+	case 101: //EXPLOSION, Key: e
+		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
+		break;
+	case 49: //BASH, Key: 1
+		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
+		break;
+	case 50: //BUILD, Key: 2
+		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
+		break;
+	case 51: //DIG, Key: 3
+		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
+		break;
+	case 52: //STOP, Key: 4
+		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
+		break;
+	case 53: //STOP BY COLOR, Key: 5
+		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
+		break;
+	case 54: //CLIMB, Key: 6
+		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
+		break;
+	case 122: //SPAWN RED, KEY: z
+		spawnPikmin(0);
+		break;
+	case 120: //SPAWN BLUE, KEY: x
+		spawnPikmin(1);
+		break;
+	case 99: //SPAWN YELLOW, KEY: c
+		spawnPikmin(2);
+		break;
+	case 118: //SPAWN PURPLE, KEY: v
+		spawnPikmin(3);
+		break;
 	}
 }
 
 void Level::keyreleased(int key) {
 
-		lemmings[0].keyReleased(key);
+	lemmings[0].keyReleased(key);
 }
-
+void Level::renderFinalScore() {
+	int aux0;
+	for (int i = 0; i < 3; ++i) {
+		if (i == 0) aux0 = survived;
+		else if (i == 1) aux0 = survived;
+		else aux0 = (survived / winPikmins) * 100;
+		for (int j = 0; j < 3; ++j) {
+			int div = pow(10, 3 - j - 1);
+			int digit = aux0 / div;
+			zetaTextProgram.setUniformMatrix4f("modelview", resultMatrix[i][j]);
+			numbersResultQuad[digit]->render(numbers);
+			aux0 = aux0 % div;
+		}
+	}
+}
 void Level::renderScore() {
 	int aux0 = out;
 	for (int i = 0; i < 3; ++i) {
@@ -94,7 +124,7 @@ void Level::renderScore() {
 		numbersQuad[digit]->render(numbers);
 		aux0 = aux0 % div;
 	}
-	int aux1 = (survived / winPikmins)*100;
+	int aux1 = (survived / winPikmins) * 100;
 	for (int i = 0; i < 3; ++i) {
 		int div = pow(10, 3 - i - 1);
 		int digit = aux1 / div;
@@ -120,6 +150,10 @@ void Level::init(int nLevel)
 	inCentreX = 0.f;
 	speed = 1;
 	second = 0.f, winTime = 3.f;
+	winSong.openFromFile("soundTrack/14.results.wav");
+	winSong.setLoop(true);
+	gameOverSong.openFromFile("soundTrack/28liveasapikmin.wav");
+	gameOverSong.setLoop(true);
 	paused = 1; weLost = 0, weWin = 0, weWantToGoBack = 0; vPik.clear();
 	this->nLevel = nLevel;
 	stateBackMenu = 0;
@@ -139,10 +173,10 @@ void Level::init(int nLevel)
 	maskTexture.setMagFilter(GL_NEAREST);
 
 	//Incializamos imagen del spawn de los Pikmn
-	spawn.loadFromFile("images/Inici.png",TEXTURE_PIXEL_FORMAT_RGBA);
+	spawn.loadFromFile("images/Inici.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	spawn.setMinFilter(GL_NEAREST);
 	spawn.setMagFilter(GL_NEAREST);
-	glm::vec2 texCoordsSpawn[2] = { glm::vec2(0.f, 0.f), glm::vec2(1.f, 1.f)};
+	glm::vec2 texCoordsSpawn[2] = { glm::vec2(0.f, 0.f), glm::vec2(1.f, 1.f) };
 	glm::vec2 geomSpawn[2] = { glm::vec2(1.f,1.f), glm::vec2(32.f, 32.f) };
 	spawnQuad = TexturedQuad::createTexturedQuad(geomSpawn, texCoordsSpawn, zetaTextProgram);
 
@@ -153,7 +187,7 @@ void Level::init(int nLevel)
 	glm::vec2 texCoordsExit[2] = { glm::vec2(0.f, 0.f), glm::vec2(1.f, 1.f) };
 	glm::vec2 geomExit[2] = { glm::vec2(1.f,1.f), glm::vec2(20.f, 20.f) };
 	exitQuad = TexturedQuad::createTexturedQuad(geomSpawn, texCoordsSpawn, zetaTextProgram);
-	
+
 	//Incializamos imagen del boton de Fast Forward
 	fastForwardButton.loadFromFile("images/Buttons/fastForwardButton.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	fastForwardButton.setMinFilter(GL_NEAREST);
@@ -173,15 +207,32 @@ void Level::init(int nLevel)
 	pausedQuad = TexturedQuad::createTexturedQuad(geomPausedButton, texCoords2, zetaTextProgram);
 
 	//Inicializamos botones Retry y BackToMenu
-	glm::vec2 geomLose[2] = { glm::vec2(0.f, 0.f), glm::vec2(float(100), float(40)) };
+	glm::vec2 geomLose[2] = { glm::vec2(0.f, 0.f), glm::vec2(320.f*(202.f/960.f), ((538-465)/564.f)*188.f) };
 	loseTextures[0].loadFromFile("images/Buttons/Retry.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	loseTextures[0].setMinFilter(GL_NEAREST);
 	loseTextures[0].setMagFilter(GL_NEAREST);
-	loseTextures[1].loadFromFile("images/Buttons/BackToMenu.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	loseTextures[1].loadFromFile("images/Buttons/mainMenu.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	loseTextures[1].setMinFilter(GL_NEAREST);
 	loseTextures[1].setMagFilter(GL_NEAREST);
+
+	winTextures[0].loadFromFile("images/Buttons/Retry.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	winTextures[0].setMinFilter(GL_NEAREST);
+	winTextures[0].setMagFilter(GL_NEAREST);
+	winTextures[1].loadFromFile("images/Buttons/mainMenu.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	winTextures[1].setMinFilter(GL_NEAREST);
+	winTextures[1].setMagFilter(GL_NEAREST);
+
+	gameOverTexture.loadFromFile("images/winOrGameOverScreen/gameOver.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	gameOverTexture.setMinFilter(GL_NEAREST);
+	gameOverTexture.setMagFilter(GL_NEAREST);
+	winTexture.loadFromFile("images/winOrGameOverScreen/winTexture.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	winTexture.setMinFilter(GL_NEAREST);
+	winTexture.setMagFilter(GL_NEAREST);
+	//geom[2] = { glm::vec2(0.f, 0.f), glm::vec2(sizeOfLevel, float(CAMERA_HEIGHT)+28) };
+	glm::vec2 geomGameOver[2] = { glm::vec2(0.f, 0.f), glm::vec2(320.f, 188.f) };
+	gameOverAndWinQuad = TexturedQuad::createTexturedQuad(geomGameOver, texCoords2, zetaTextProgram);
 	for (int i = 0; i < 3; ++i) {
-		glm::vec2 texCoords2[2] = { glm::vec2(0.f, float(i) / 3.f), glm::vec2(1.f,float(i)/3.f+ 1.f/3.f) };
+		glm::vec2 texCoords2[2] = { glm::vec2(0.f, float(i) / 3.f), glm::vec2(1.f,float(i) / 3.f + 1.f / 3.f) };
 		loseQuads[i] = TexturedQuad::createTexturedQuad(geomLose, texCoords2, zetaTextProgram);
 	}
 	//Inicializamos el menu y el powerBar
@@ -190,21 +241,23 @@ void Level::init(int nLevel)
 	projection2 = glm::ortho(offsetxLevel, float(offsetxLevel + 320.f - 1), float(160.f - 1 + 28), 0.f);
 	projection = glm::ortho(0.f, float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1 + 28), 0.f);
 	glm::vec2 geomNumbers[2] = { glm::vec2(0.f, 0.f), glm::vec2(float(CAMERA_WIDTH)*16.f / 648.f,28.f*35.f / 84.f) };
+	glm::vec2 geomNumbers2[2] = { glm::vec2(0.f, 0.f), glm::vec2(float(CAMERA_WIDTH)*20.f / 648.f,28.f*40.f / 84.f) };
 	for (int i = 0; i < 10; ++i) {
-		glm::vec2 texCoordNum[2] = { glm::vec2(i*24.f/240.f, 0.f), glm::vec2((i*24.f+24.f) / 240.f,1.f) };
+		glm::vec2 texCoordNum[2] = { glm::vec2(i*24.f / 240.f, 0.f), glm::vec2((i*24.f + 24.f) / 240.f,1.f) };
 		numbersQuad[i] = TexturedQuad::createTexturedQuad(geomNumbers, texCoordNum, zetaTextProgram);	//Inicializamos el menu y el powerBar
+		numbersResultQuad[i] = TexturedQuad::createTexturedQuad(geomNumbers2, texCoordNum, zetaTextProgram);
 	}
 	numbers.loadFromFile("images/Buttons/numeros3.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	numbers.setMinFilter(GL_NEAREST);
 	numbers.setMagFilter(GL_NEAREST);
 
 	/*for (int i = 0; i < 1; ++i) {
-		int aleatorio = rand() % 4;
-		lemmings[i].init(glm::vec2(80, 50), simpleTexProgram,aleatorio );
-		++actualment[lemmings[i].getTipus()];
-		lemmings[i].setMapMask(&maskTexture);
-		lemmingsSelected[i] == false;
-		++out;
+	int aleatorio = rand() % 4;
+	lemmings[i].init(glm::vec2(80, 50), simpleTexProgram,aleatorio );
+	++actualment[lemmings[i].getTipus()];
+	lemmings[i].setMapMask(&maskTexture);
+	lemmingsSelected[i] == false;
+	++out;
 	}*/
 	int aleatorio = rand() % 4;
 	spawnPikmin(aleatorio);
@@ -219,11 +272,14 @@ void Level::setValues() {
 		LevelMaskLocation = "images/fun1_mask.png";
 		spawnPoint = glm::vec2(60, 30);
 		exitPoint = glm::vec2(216, 100);
-		Time = 100;
-		survived = 0;
+		Time = 3;
+		survived = 10;
 		winPikmins = 10;
 		offsetxLevel = 120.f;
 		sizeOfLevel = 512.f;
+		ost.openFromFile("soundTrack/06theimpactsite.wav");
+		ost.setLoop(true);
+		ost.play();
 	}
 	else if (nLevel == 2) {
 		maxPikmins = 50;
@@ -237,6 +293,9 @@ void Level::setValues() {
 		winPikmins = 10;
 		offsetxLevel = 120.f;
 		sizeOfLevel = 512.f;
+		ost.openFromFile("soundTrack/06theimpactsite.wav");
+		ost.setLoop(true);
+		ost.play();
 	}
 
 	else if (nLevel == 3) {
@@ -251,6 +310,9 @@ void Level::setValues() {
 		winPikmins = 10;
 		offsetxLevel = 120.f;
 		sizeOfLevel = 512.f;
+		ost.openFromFile("soundTrack/06theimpactsite.wav");
+		ost.setLoop(true);
+		ost.play();
 	}
 }
 
@@ -285,45 +347,15 @@ void Level::applyMask(int mouseX, int mouseY)
 }
 
 void Level::render() {
-	powersBar.render();
-	maskedTexProgram.use();
 	glm::mat4 modelview;
-	//projection2 = glm::translate(projection2, glm::vec3(currentTime / 2000.f, 0.f, 0.f));
-	maskedTexProgram.setUniformMatrix4f("projection", projection2);
-	maskedTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-	modelview = glm::mat4(1.0f);
-	//Hay que trasladar en x 524 pixeles (81.01 % de la imagen) en 320 son 259.26
-	//modelview = glm::translate(modelview, glm::vec3(currentTime/1000.f, 0.f, 0.f));
-	maskedTexProgram.setUniformMatrix4f("modelview", modelview);
-	map->render(maskedTexProgram, colorTexture, maskTexture);
-	
-
-	simpleTexProgram.use();
-
-	//projection = glm::translate(projection, glm::vec3(currentTime / 2000.f, 0.f, 0.f));
-	simpleTexProgram.setUniformMatrix4f("projection", projection);
-	simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-	modelview = glm::mat4(1.0f);
-	//modelview = glm::translate(modelview, glm::vec3(currentTime / 1000.f, 0.f, 0.f));
-	simpleTexProgram.setUniformMatrix4f("modelview", modelview);
-	//for (int i = 0; i < 1; ++i) lemmings[i].render(projection);
-	for (int i = 0; i < vPik.size(); ++i) {
-		vPik[i].render(projection); 
-	}
-
-	zetaTextProgram.use();
-	zetaTextProgram.setUniformMatrix4f("projection", projectionButtons);
-	zetaTextProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-	zetaTextProgram.setUniform2f("zeta", 0.f, 0.5f);
-	//modelview = glm::translate(modelview, glm::vec3(currentTime / 1000.f, 0.f, 0.f));
-	zetaTextProgram.setUniformMatrix4f("modelview", fastForwardModel);
-	fastForwardQuad->render(fastForwardButton);
-	renderScore();
-	if (paused == 0) {
-		zetaTextProgram.setUniformMatrix4f("modelview", pausedMatrix);
-		pausedQuad->render(pausedTexture);
-	}
-	else if (weLost == 1) {
+	if (weLost == 1) {
+		zetaTextProgram.use();
+		zetaTextProgram.setUniformMatrix4f("projection", projectionButtons);
+		zetaTextProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+		zetaTextProgram.setUniform2f("zeta", 0.f, 0.5f);
+		modelview = glm::mat4(1.0f);
+		zetaTextProgram.setUniformMatrix4f("modelview", modelview);
+		gameOverAndWinQuad->render(gameOverTexture);
 		for (int i = 0; i < 2; ++i) {
 			zetaTextProgram.setUniformMatrix4f("modelview", loseMatrix[i]);
 			if (i == 0) loseQuads[stateRetry]->render(loseTextures[i]);
@@ -331,82 +363,129 @@ void Level::render() {
 		}
 	}
 	else if (weWin == 1) {
-		zetaTextProgram.setUniformMatrix4f("modelview", pausedMatrix);
-		pausedQuad->render(winTexture);
+		zetaTextProgram.use();
+		zetaTextProgram.setUniformMatrix4f("projection", projectionButtons);
+		zetaTextProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+		zetaTextProgram.setUniform2f("zeta", 0.f, 0.5f);
+		modelview = glm::mat4(1.0f);
+		zetaTextProgram.setUniformMatrix4f("modelview", modelview);
+		gameOverAndWinQuad->render(winTexture);
+		for (int i = 0; i < 2; ++i) {
+			zetaTextProgram.setUniformMatrix4f("modelview", loseMatrix[i]);
+			if (i == 0) loseQuads[stateRetry]->render(winTextures[i]);
+			else loseQuads[stateBackMenu]->render(winTextures[i]);
+		}
+		renderFinalScore();
 	}
-	//Renderizamos el spaw
-	zetaTextProgram.setUniformMatrix4f("projection", projection);
-	zetaTextProgram.setUniformMatrix4f("modelview", spawnModel);
-	spawnQuad->render(spawn);
-	//Renderizamos la salida 
-	zetaTextProgram.setUniformMatrix4f("modelview", exitModel);
-	exitQuad->render(exit);
+	else {
+		powersBar.render();
+		maskedTexProgram.use();
+		//projection2 = glm::translate(projection2, glm::vec3(currentTime / 2000.f, 0.f, 0.f));
+		maskedTexProgram.setUniformMatrix4f("projection", projection2);
+		maskedTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+		modelview = glm::mat4(1.0f);
+		//Hay que trasladar en x 524 pixeles (81.01 % de la imagen) en 320 son 259.26
+		//modelview = glm::translate(modelview, glm::vec3(currentTime/1000.f, 0.f, 0.f));
+		maskedTexProgram.setUniformMatrix4f("modelview", modelview);
+		map->render(maskedTexProgram, colorTexture, maskTexture);
 
-	//renderTime();
-	//for (unsigned int i = 0; i < lemmings.size(); ++i);
-		//lemmings[i].render();
+
+		simpleTexProgram.use();
+
+		//projection = glm::translate(projection, glm::vec3(currentTime / 2000.f, 0.f, 0.f));
+		simpleTexProgram.setUniformMatrix4f("projection", projection);
+		simpleTexProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+		modelview = glm::mat4(1.0f);
+		//modelview = glm::translate(modelview, glm::vec3(currentTime / 1000.f, 0.f, 0.f));
+		simpleTexProgram.setUniformMatrix4f("modelview", modelview);
+		//for (int i = 0; i < 1; ++i) lemmings[i].render(projection);
+		for (int i = 0; i < vPik.size(); ++i) {
+			vPik[i].render(projection);
+		}
+
+		zetaTextProgram.use();
+		zetaTextProgram.setUniformMatrix4f("projection", projectionButtons);
+		zetaTextProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+		zetaTextProgram.setUniform2f("zeta", 0.f, 0.5f);
+		//modelview = glm::translate(modelview, glm::vec3(currentTime / 1000.f, 0.f, 0.f));
+		zetaTextProgram.setUniformMatrix4f("modelview", fastForwardModel);
+		fastForwardQuad->render(fastForwardButton);
+		renderScore();
+		if (paused == 0) {
+			zetaTextProgram.setUniformMatrix4f("modelview", pausedMatrix);
+			pausedQuad->render(pausedTexture);
+		}
+		else if (weWin == 1) {
+			zetaTextProgram.setUniformMatrix4f("modelview", pausedMatrix);
+			pausedQuad->render(winTexture);
+		}
+		//Renderizamos el spaw
+		zetaTextProgram.setUniformMatrix4f("projection", projection);
+		zetaTextProgram.setUniformMatrix4f("modelview", spawnModel);
+		spawnQuad->render(spawn);
+		//Renderizamos la salida 
+		zetaTextProgram.setUniformMatrix4f("modelview", exitModel);
+		exitQuad->render(exit);
+	}
 }
 
 void Level::update(int deltaTime)
 {
 	float aux = float(deltaTime) * float(speed);
 	second += 1 / aux;
-	if (winPikmins <= survived) {
+	if (weWin == 0 && winPikmins <= survived) {
+		ost.stop();
+		winSong.play();
 		weWin = 1;
+	}
+	else if (weWin != 1 && paused == 1 && !weLost) {
 		if (second > 1) {
 			second = 0;
-			--winTime;
-			if (winTime <= 0) {
-				if (nLevel < 3) init(nLevel + 1);
-				else weWantToGoBack = 1;
+			--Time;
+		}
+		//Modificar pls
+		int aliveLemmings = 10;
+		int request = powersBar.getPowersBarRequest();
+		if (request != -1) {
+			int stateAction = powersBar.getPowersBarState(request);
+			int total = 0;
+			for (int i = 0; i < vPik.size(); ++i) {
+				if (vPik[i].getIfSelected() && vPik[i].canDoAction(request)) {
+					lemmingsSelected[i] = true;
+					++total;
+				}
 			}
-		}
-	}
-	else if (paused == 1 && !weLost) {
-	if (second > 1) {
-		second = 0;
-		--Time;
-	}
-	//Modificar pls
-	int aliveLemmings = 10;
-	int request = powersBar.getPowersBarRequest();
-	if (request != -1) {
-		int stateAction = powersBar.getPowersBarState(request);
-		int total = 0;
-		for (int i = 0; i < vPik.size(); ++i) {
-			if (vPik[i].getIfSelected() && vPik[i].canDoAction(request)) {
-				lemmingsSelected[i] = true;
-				++total;
+			//fallamos intentando realizar un poder
+			if (total > stateAction) {
+				//Ruido de fallo
 			}
-		}
-		//fallamos intentando realizar un poder
-		if (total > stateAction) {
-			//Ruido de fallo
-		}
-		else {
-			for (int i = 0; i < vPik.size(); ++i) if (lemmingsSelected[i]) {
-				lemmingsSelected[i] = false;
-				vPik[i].doAction(request);
+			else {
+				for (int i = 0; i < vPik.size(); ++i) if (lemmingsSelected[i]) {
+					lemmingsSelected[i] = false;
+					vPik[i].doAction(request);
+				}
+				powersBar.setSpendPowers(request, total);
 			}
-			powersBar.setSpendPowers(request, total);
+			powersBar.finishRequest();
 		}
-		powersBar.finishRequest();
-	}
-	//ola.update(deltaTime, inCentreX);
-	/*for (unsigned int i = 0; i < 1; ++i)
+		//ola.update(deltaTime, inCentreX);
+		/*for (unsigned int i = 0; i < 1; ++i)
 		lemmings[i].update(deltaTime,inCentreX);*/
-	for (unsigned int i = 0; i < vPik.size(); ++i) {
-		vPik[i].update(deltaTime, inCentreX);
-	}
-	 if (Time <= 0 || aliveLemmings <= 0) weLost = 1;
+		for (unsigned int i = 0; i < vPik.size(); ++i) {
+			vPik[i].update(deltaTime, inCentreX);
+		}
+		if (Time <= 0 || aliveLemmings <= 0) {
+			ost.stop();
+			gameOverSong.play();
+			weLost = 1;
+		}
 	}
 }
 
 void Level::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton)
 {
 	//for (int i = 0; i < 1; ++i ) lemmings[i].mouseMoved(mouseX, mouseY, bLeftButton);
-	if (weLost == 1) {
-		cout << "OLA HE PERDIDO" << endl;
+	if (weLost == 1 || weWin == 1) {
 		for (int i = 0; i < 2; ++i) {
 			bool intersecta = loseQuads[0]->intersecta(mouseX, mouseY, loseMatrix[i]);
 			if (intersecta &&  i == 0 && bRightButton) {
@@ -441,15 +520,41 @@ void Level::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 	}
 }
 
-void Level::mouseRelease(int mouseX, int mouseY, int button)
+int Level::mouseRelease(int mouseX, int mouseY, int button)
 {
-	powersBar.mouseRelease(mouseX, mouseY,button);
+	powersBar.mouseRelease(mouseX, mouseY, button);
 	paused = powersBar.getPaused();
 	if (weLost == 1) {
 		for (int i = 0; i < 2; ++i) {
 			bool intersecta = loseQuads[0]->intersecta(mouseX, mouseY, loseMatrix[i]);
-			if (intersecta &&  i == 0) init(nLevel);
-			else if (intersecta && i == 1) weWantToGoBack = 1;
+			if (intersecta &&  i == 0) {
+				gameOverSong.stop();
+				init(nLevel);
+			}
+			else if (intersecta && i == 1) {
+				ost.stop();
+				gameOverSong.stop();
+				weWantToGoBack = 1;
+			}
+		}
+	}
+	else if (weWin == 1) {
+		for (int i = 0; i < 2; ++i) {
+			bool intersecta = loseQuads[0]->intersecta(mouseX, mouseY, loseMatrix[i]);
+			if (intersecta &&  i == 0) {
+				if (nLevel < 3) {
+					winSong.stop();
+					init(nLevel + 1);
+				}
+				else {
+					winSong.stop();
+					weWantToGoBack = 1;
+				}
+			}
+			else if (intersecta && i == 1) {
+				winSong.stop();
+				weWantToGoBack = 1;
+			}
 		}
 	}
 	else if (paused == 1) {
@@ -462,6 +567,7 @@ void Level::mouseRelease(int mouseX, int mouseY, int button)
 			vPik[i].mouseRelease(mouseX, mouseY, button);
 		}
 	}
+	return nLevel + 1;
 }
 
 void Level::initShaders()
@@ -549,7 +655,7 @@ int Level::getSpeed() {
 }
 
 void Level::spawnPikmin(int tipus)
-{ 
+{
 	if (out + survived < maxPikmins) {
 		//PikminAux.init(glm::vec2(80, 50), simpleTexProgram, tipus);
 		PikminAux.init(spawnPoint, simpleTexProgram, tipus);

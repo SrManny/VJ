@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
+
 Menu::Menu()
 {
 }
@@ -31,6 +32,9 @@ void Menu::init(glm::mat4 projection) {
 	selectSprite = 0;
 	overStart = false;
 	overSelect = false;
+	osts.openFromFile("soundTrack/01.pikmin.wav");
+	osts.setLoop(true);
+	osts.play();
 	this->projection = projection;
 	startButtonMatrixs();
 	glm::vec2 geom[2] = { glm::vec2(0.f, 0.f), glm::vec2(float(CAMERA_WIDTH), float(CAMERA_HEIGHT + 28)) };
@@ -134,11 +138,13 @@ int Menu::mouseRelease(int button) {
 	if (overStart) {
 		startSprite = 0;
 		overStart = false;
+		osts.stop();
 		return 2;
 	}
 	else if (overSelect) {
 		selectSprite = 0;
 		overSelect = false;
+		osts.stop();
 		return 1;
 	}
 	return 0;

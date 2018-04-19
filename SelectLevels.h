@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include "ShaderProgram.h"
 #include "TexturedQuad.h"
+#include <SFML/Audio.hpp>
 
 class SelectLevels
 {
@@ -28,6 +29,7 @@ private:
 	TexturedQuad *backQuad, *levelsButtonsQuads[4];
 	ShaderProgram zetaTextProgram;
 	glm::mat4 projection;
+	sf::Music ost;
 	//0 normal, 1 raton encima, 2 clik en el boton
 	string imageLoc[4];
 	//-1 nada, 0 nivel 1, 1 nivel 2, 2 nivel 3, 3 volver al menu

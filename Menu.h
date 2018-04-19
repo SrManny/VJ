@@ -6,6 +6,7 @@
 #include "ShaderProgram.h"
 #include "TexturedQuad.h"
 #include <SFML/Audio.hpp>
+
 class Menu
 {
 public:
@@ -28,6 +29,7 @@ private:
 	TexturedQuad *backQuad, *startQuad[3], *selectQuad[3];
 	ShaderProgram zetaTextProgram;
 	glm::mat4 projection;
+	sf::Music osts;
 	//0 normal, 1 raton encima, 2 clik en el boton
 	int startSprite, selectSprite;
 	//start is pressed

@@ -47,7 +47,9 @@ void SelectLevels::init(glm::mat4 projection) {
 	imageLoc[1] = "images/SelectLevels/fun1.png";
 	imageLoc[2] = "images/SelectLevels/fun1.png";
 	imageLoc[3] = "images/SelectLevels/fun1.png";
-
+	ost.openFromFile("soundTrack/03levelselect.ogg");
+	ost.setLoop(true);
+	ost.play();
 	for (int i = 1; i < 4; ++i) {
 		geom[0] = glm::vec2(0.f, 0.f); geom[1] = glm::vec2(60.f, 50.f);
 		texCoords[0] = glm::vec2(0.f, 0.f); texCoords[1] = glm::vec2(1.f, 1.f);
@@ -111,8 +113,14 @@ void SelectLevels::render() {
 
 int SelectLevels::mouseRelease(int button) {
 	for (int i = 0; i < 4; ++i) {
-		if (pressedButton[i] == 2 && (i ==0)) return i;
-		else if (pressedButton[i] == 2 && (i != 0)) return i + 1;
+		if (pressedButton[i] == 2 && (i == 0)) {
+			ost.stop();
+			return i;
+		}
+		else if (pressedButton[i] == 2 && (i != 0)) {
+			ost.stop();
+			return i + 1;
+		}
 	}
 	return 1;
 }

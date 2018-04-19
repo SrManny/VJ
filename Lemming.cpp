@@ -15,7 +15,7 @@
 
 enum LemmingAnims
 {
-	WALKING_LEFT, WALKING_RIGHT, FALLING_LEFT, FALLING_RIGHT, DYING, DEATH, DIG, BASH_LEFT, BASH_RIGHT, CLIMB, BUILD_LEFT, BUILD_RIGHT, EXPLODE, BLOCK
+	WALKING_LEFT, WALKING_RIGHT, FALLING_LEFT, FALLING_RIGHT, DYING, DEATH, DIG, BASH_LEFT, BASH_RIGHT, CLIMB, BUILD_LEFT, BUILD_RIGHT, EXPLODE, BLOCK, STOPPER
 };
 
 
@@ -33,8 +33,8 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 
 	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.125 / 2.f, 0.25 / 2), &spritesheet, &shaderProgram);
 	//tipusLemming = rand() % 4;
-	tipusLemming = tipus; 
-	sprite->setNumberAnimations(13);
+	tipusLemming = tipus;
+	sprite->setNumberAnimations(14);
 
 	sprite->setAnimationSpeed(WALKING_RIGHT, 12);
 	for (int i = 0; i<8; i++)
@@ -43,6 +43,7 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 	sprite->setAnimationSpeed(WALKING_LEFT, 12);
 	for (int i = 0; i<8; i++)
 		sprite->addKeyframe(WALKING_LEFT, glm::vec2(float(i) / 16, tipusLemming / 4.0f + 0.125f));
+
 	sprite->setAnimationSpeed(FALLING_LEFT, 12);
 	sprite->addKeyframe(FALLING_LEFT, glm::vec2(0.5, tipusLemming / 4.0));
 
@@ -62,26 +63,30 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 		sprite->addKeyframe(BASH_RIGHT, glm::vec2((8 + float(i)) / 16.0, tipusLemming / 4.0 + 0.125));
 
 	sprite->setAnimationSpeed(CLIMB, 2);
-	sprite->addKeyframe(CLIMB, glm::vec2(0.625, tipusLemming / 4.0));
+	sprite->addKeyframe(CLIMB, glm::vec2(0.5625, tipusLemming / 4.0));
 
 	sprite->setAnimationSpeed(BUILD_LEFT, 2);
 	for (int i = 0; i < 2; i++)
-		sprite->addKeyframe(BUILD_LEFT, glm::vec2(0.5 + float(i) / 16.0, tipusLemming / 4.0 + 0.125));
+		sprite->addKeyframe(BUILD_LEFT, glm::vec2(0.625 + float(i) / 16.0, tipusLemming / 4.0 + 0.125));
 
 	sprite->setAnimationSpeed(BUILD_RIGHT, 2);
 	for (int i = 0; i < 2; i++)
-		sprite->addKeyframe(BUILD_RIGHT, glm::vec2(0.625 + float(i) / 16.0, tipusLemming / 4.0 + 0.125));
+		sprite->addKeyframe(BUILD_RIGHT, glm::vec2(0.5 + float(i) / 16.0, tipusLemming / 4.0 + 0.125));
 
-	sprite->setAnimationSpeed(EXPLODE, 1);
-	for (int i = 0; i < 4; i++) 
+	sprite->setAnimationSpeed(EXPLODE, 4);
+	for (int i = 0; i < 4; i++) {
 		sprite->addKeyframe(EXPLODE, glm::vec2(0.75 + float(i) / 16.0, tipusLemming / 4.0));
+	}
 
-	sprite->setAnimationSpeed(DYING, 2);
-	for (int i = 0; i < 4; i++)
+	sprite->setAnimationSpeed(DYING, 32);
+	for (int i = 0; i < 3; i++)
 		sprite->addKeyframe(DYING, glm::vec2(0.75 + float(i) / 16.0, tipusLemming / 4.0 + 0.125));
 
-	sprite->setAnimationSpeed(DEATH, 4);
-	sprite->addKeyframe(DYING, glm::vec2(0.9375, tipusLemming / 4.0 + 0.125));
+	sprite->setAnimationSpeed(DEATH, 1);
+	sprite->addKeyframe(DEATH, glm::vec2(0.9375, tipusLemming / 4.0 + 0.125));
+
+	sprite->setAnimationSpeed(STOPPER, 1);
+	sprite->addKeyframe(STOPPER, glm::vec2(0.75, tipusLemming / 4.0));
 
 	sprite->changeAnimation(WALKING_RIGHT);
 	sprite->setPosition(initialPosition);
@@ -250,32 +255,106 @@ void Lemming::update(int deltaTime, float centreX)
 				state = FALLING_RIGHT_STATE;
 		}
 		else {
-			bash(sprite->position(),1);
+			bash(sprite->position(), 1);
 		}
 		break;
 	case BUILD_LEFT_STATE:
-		sprite->changeAnimation(BUILD_LEFT);
-		build(sprite->position(), -1);
+		if (!collision(3)) {
+			//sprite->changeAnimation(BUILD_LEFT);
+			build(sprite->position(), -1);
+			sprite->position() += glm::vec2(-2, -1);
+		}
+		else {
+			state = WALKING_RIGHT_STATE;
+			sprite->changeAnimation(WALKING_RIGHT);
+		}
 		break;
 	case BUILD_RIGHT_STATE:
-		sprite->changeAnimation(BUILD_RIGHT);
-		build(sprite->position(), 1);
+		if (!collision(3)) {
+			//sprite->changeAnimation(BUILD_RIGHT);
+			build(sprite->position(), 1);
+			sprite->position() += glm::vec2(2, -1);
+		}
+		else {
+			state = WALKING_LEFT_STATE;
+			sprite->changeAnimation(WALKING_LEFT);
+		}
+		break;
+	case STOP_LEFT_STATE:
+		//sprite->changeAnimation(STOPPER);
+		stop(sprite->position());
+		break;
+	case STOP_RIGHT_STATE:
+		//sprite->changeAnimation(STOPPER);
+		stop(sprite->position());
+		break;
+	case STOP_COLOR_LEFT_STATE:
+		//sprite->changeAnimation(STOPPER);
+		stopColor(sprite->position());
+		break;
+	case STOP_COLOR_RIGHT_STATE:
+		//sprite->changeAnimation(STOPPER);
+		stopColor(sprite->position());
+		break;
+	case CLIMB_LEFT_STATE:
+		if (!collisionCeiling(1)) {
+			if (collision(-1)) {
+				sprite->position() += glm::vec2(0, -1);
+			}
+			else if (collision(-2)) {
+				sprite->position() += glm::vec2(-1, -1);
+			}
+			else {
+				state = WALKING_LEFT_STATE;
+				sprite->changeAnimation(WALKING_LEFT);
+			}
+		}
+		else {
+			state = WALKING_LEFT_STATE;
+			sprite->changeAnimation(WALKING_LEFT);
+		}
+		break;
+	case CLIMB_RIGHT_STATE:
+		if (!collisionCeiling(1)) {
+			if (collision(1)) {
+				sprite->position() += glm::vec2(0, -1);
+			}
+			else if (collision(2)) {
+				sprite->position() += glm::vec2(1, -1);
+			}
+			else {
+				state = WALKING_RIGHT_STATE;
+				sprite->changeAnimation(WALKING_RIGHT);
+			}
+		}
+		else {
+			state = WALKING_RIGHT_STATE;
+			sprite->changeAnimation(WALKING_RIGHT);
+		}
 		break;
 	case DYING_STATE:
-		sprite->changeAnimation(DYING);
-		
-		//state = DEATH_STATE;
+		//sprite->changeAnimation(DYING);
+		fall = collisionFloor(3);
+		if (fall > 0) {
+			sprite->position() += glm::vec2(0, 1);
+		}
+		else {
+			state = DEATH_STATE;
+		}
 		break;
 	case EXPLODE_STATE:
-		explosion(sprite->position());
-		sprite->changeAnimation(EXPLODE);
 
-		die(); 
+		//sprite->changeAnimation(EXPLODE);
+		explosion(sprite->position());
+		sprite->changeAnimation(DYING);
+		state = DYING_STATE;
 		break;
+
+
 	case DEATH_STATE:
 		//kill lemming, erase, unrender
 		sprite->changeAnimation(DEATH);
-		die(); 
+		die();
 		break;
 	}
 }
@@ -317,7 +396,7 @@ void Lemming::eraseMask(glm::vec2 pos)
 		for (int x = max(0, posX - 8); x <= min(mask->width() - 1, posX + 8); x++) {
 			float distance = sqrt(pow((x - posX), 2) + pow((y - posY), 2));
 			if (distance < 5) mask->setPixel(x, y, 0);
-			}
+		}
 }
 
 void Lemming::explosion(glm::vec2 pos)
@@ -326,7 +405,8 @@ void Lemming::explosion(glm::vec2 pos)
 	int posY = pos[1] + 14;
 	for (int i = -10; i < 10; ++i)
 		for (int j = -10; j < 10; ++j)
-			mask->setPixel(posX + i , posY + j, 0);
+			mask->setPixel(posX + i, posY + j, 0);
+
 }
 
 void Lemming::bash(glm::vec2 pos, int ind)
@@ -334,19 +414,19 @@ void Lemming::bash(glm::vec2 pos, int ind)
 	int posX = pos[0] + 120 + 9;
 	int posY = pos[1] + 14;
 	//ind indica si se excava a izquierda o derecha, 1 para derecha, -1 para izquierda
-	if (ind == 1){
+	if (ind == 1) {
 		for (int i = 0; i < 10; ++i) {
-			mask->setPixel(posX-1, posY + (i*ind) - (8 * ind), 0);
-			mask->setPixel(posX , posY + (i*ind)-(8*ind) , 0);
-			mask->setPixel(posX+1, posY + (i*ind) - (8 * ind), 0);
-			mask->setPixel(posX+2, posY + (i*ind) - (8 * ind), 0);
+			mask->setPixel(posX - 1, posY + (i*ind) - (8 * ind), 0);
+			mask->setPixel(posX, posY + (i*ind) - (8 * ind), 0);
+			mask->setPixel(posX + 1, posY + (i*ind) - (8 * ind), 0);
+			mask->setPixel(posX + 2, posY + (i*ind) - (8 * ind), 0);
 		}
 	}
 	else {
 		for (int i = 0; i < 10; ++i) {
-			mask->setPixel(posX+1, posY + (i*ind) + 1, 0);
-			mask->setPixel(posX, posY + (i*ind)+1, 0);
-			mask->setPixel(posX-1, posY + (i*ind) + 1, 0);
+			mask->setPixel(posX + 1, posY + (i*ind) + 1, 0);
+			mask->setPixel(posX, posY + (i*ind) + 1, 0);
+			mask->setPixel(posX - 1, posY + (i*ind) + 1, 0);
 			mask->setPixel(posX - 2, posY + (i*ind) + 1, 0);
 		}
 	}
@@ -357,22 +437,66 @@ void Lemming::dig(glm::vec2 pos)
 	int posX = pos[0] + 120 + 9;
 	int posY = pos[1] + 14;
 	for (int i = 0; i < 8; ++i) {
-		mask->setPixel(posX+i-4, posY, 0);
-		mask->setPixel(posX + i - 4, posY+1, 0);
+		mask->setPixel(posX + i - 4, posY, 0);
+		mask->setPixel(posX + i - 4, posY + 1, 0);
 		mask->setPixel(posX + i - 4, posY + 2, 0);
 	}
 }
 
 void Lemming::build(glm::vec2 pos, int ind)
 {
-	int x = pos[0];
-	int y = pos[1];
+	int posX = pos[0] + 120 + 9;
+	int posY = pos[1] + 14;
 	//ind indica si se construye a izquierda o derecha, 1 para derecha, -1 para izquierda
-	mask->setPixel(x + 4 * ind, y + 1, 0);
-	mask->setPixel(x + 5 * ind, y + 1, 0);
-	//Hace falta ahora pintar la textura real con algun color definido
-	color->setPixel(x + 4 * ind, y + 1, glm::ivec4(255, 0, 0, 255));
-	color->setPixel(x + 5 * ind, y + 1, glm::ivec4(255, 0, 0, 255));
+	if (ind == -1) {
+		for (int i = 0; i < 4; ++i) {
+			mask->setPixel(posX - 4 - i, posY + 1, 255);
+			color->setPixel(posX - 4 - i, posY + 1, glm::ivec4(250, 250, 101, 255));
+		}
+	}
+	else {
+		for (int i = 0; i < 4; ++i) {
+			mask->setPixel(posX + i, posY + 1, 255);
+			color->setPixel(posX + i, posY + 1, glm::ivec4(250, 250, 101, 255));
+		}
+	}
+}
+
+void Lemming::stop(glm::vec2 pos) {
+	int posX = pos[0] + 120 + 9;
+	int posY = pos[1] + 14;
+	for (int i = 0; i < 10; ++i)
+		for (int j = 0; j < 5; ++j) {
+			if (mask->pixel(posX + j - 3, posY - i) == 0) {
+				mask->setPixel(posX + j - 3, posY - i, 254);
+			}
+		}
+
+}
+
+void Lemming::stopColor(glm::vec2 pos) {
+	int posX = pos[0] + 120 + 9;
+	int posY = pos[1] + 14;
+	for (int i = 0; i < 10; ++i)
+		for (int j = 0; j < 5; ++j)
+			if (mask->pixel(posX + j, posY - i) == 0) {
+				mask->setPixel(posX + j - 3, posY - i, 255 - 2 - tipusLemming);
+			}
+}
+
+void Lemming::resumePikmin(glm::vec2 pos) {
+	int posX = pos[0] + 120 + 9;
+	int posY = pos[1] + 14;
+	for (int i = 0; i < 16; ++i)
+		for (int j = 0; j < 16; ++j) {
+			if (mask->pixel(posX + j - 8, posY - i + 4) == 254) {
+				mask->setPixel(posX + j - 8, posY - i + 4, 0);
+			}
+			if (mask->pixel(posX + j - 8, posY - i + 4) == 255 - 2 - tipusLemming) {
+				mask->setPixel(posX + j - 8, posY - i + 4, 0);
+
+			}
+		}
 }
 
 int Lemming::collisionFloor(int maxFall)
@@ -386,6 +510,8 @@ int Lemming::collisionFloor(int maxFall)
 	{
 		if ((mask->pixel(posBase.x, posBase.y + fall) == 0) && (mask->pixel(posBase.x + 1, posBase.y + fall) == 0))
 			fall += 1;
+		else if ((mask->pixel(posBase.x, posBase.y + fall) == 255 - tipusLemming - 2) && (mask->pixel(posBase.x + 1, posBase.y + fall) == 255 - tipusLemming - 2))
+			fall += 1;
 		else
 			bContact = true;
 	}
@@ -393,14 +519,29 @@ int Lemming::collisionFloor(int maxFall)
 	return fall;
 }
 
+bool Lemming::collisionCeiling(int offset)
+{
+	glm::ivec2 posBase = sprite->position() + glm::vec2(120, 0); // Add the map displacement
+
+	posBase += glm::ivec2(7, 15 - offset);
+	if ((mask->pixel(posBase.x, posBase.y) == 0))
+		return false;
+	else if ((mask->pixel(posBase.x, posBase.y) == 255 - tipusLemming - 2))
+		return false;
+
+	return false;
+}
+
 bool Lemming::collision(int offset)
 {
 	glm::ivec2 posBase = sprite->position() + glm::vec2(120, 0); // Add the map displacement
 
-	posBase += glm::ivec2(7+offset, 15);
-	if ((mask->pixel(posBase.x, posBase.y) == 0) && (mask->pixel(posBase.x + 1, posBase.y) == 0))
-		return false;
-
+	posBase += glm::ivec2(7 + offset, 15);
+	int coutAux = mask->pixel(posBase.x + 1, posBase.y);
+	if (mask->pixel(posBase.x, posBase.y) == 0 || mask->pixel(posBase.x, posBase.y) == 255 - tipusLemming - 2)
+		if (mask->pixel(posBase.x + 1, posBase.y) == 0 || mask->pixel(posBase.x + 1, posBase.y) == 255 - tipusLemming - 2)
+			return false;
+	cout << "EN ESTA LLAMADA A COLISSION, EL PIXEL A CONSULTAR VALE: " << 255 - tipusLemming - 2 << " EL PIXEL VALE: " << coutAux << endl;
 	return true;
 }
 
@@ -444,7 +585,7 @@ int Lemming::mouseRelease(int mouseX, int mouseY, int button) {
 	return 0;
 }
 bool Lemming::getIfSelected() {
-	return (lemmingClicked == 1);
+	return bselected;
 }
 
 bool Lemming::intersecta(int mouseX, int mouseY) {
@@ -505,7 +646,7 @@ int Lemming::getTipus()
 void Lemming::keyReleased(int key)
 {
 	if (bselected) {
-		
+
 	}
 
 }
@@ -513,26 +654,6 @@ void Lemming::keyReleased(int key)
 void Lemming::keyPressed(int key)
 {
 	if (bselected) {
-		if (key == 51) {
-			cout << "tecla51" << endl;
-			if (state == WALKING_LEFT_STATE) {
-				state = DIG_LEFT_STATE;
-				sprite->changeAnimation(DIG);
-			}
-			else if (state == WALKING_RIGHT_STATE) {
-				state = DIG_RIGHT_STATE;
-				sprite->changeAnimation(DIG);
-			}
-			else if (state == DIG_LEFT_STATE) {
-				state = WALKING_LEFT_STATE;
-				sprite->changeAnimation(WALKING_LEFT);
-			}
-			else if (state == DIG_RIGHT_STATE) {
-				state = WALKING_RIGHT_STATE;
-				sprite->changeAnimation(WALKING_RIGHT);
-			}
-			
-		}
 		if (key == 101) {
 			state = EXPLODE_STATE;
 			sprite->changeAnimation(EXPLODE);
@@ -550,7 +671,7 @@ void Lemming::keyPressed(int key)
 				state = WALKING_LEFT_STATE;
 				sprite->changeAnimation(WALKING_LEFT);
 			}
-			else if (state == BASH_LEFT_STATE) {
+			else if (state == BASH_RIGHT_STATE) {
 				state = WALKING_RIGHT_STATE;
 				sprite->changeAnimation(WALKING_RIGHT);
 			}
@@ -568,9 +689,85 @@ void Lemming::keyPressed(int key)
 				state = WALKING_LEFT_STATE;
 				sprite->changeAnimation(WALKING_LEFT);
 			}
-			else if (state == BUILD_LEFT_STATE) {
+			else if (state == BUILD_RIGHT_STATE) {
 				state = WALKING_RIGHT_STATE;
 				sprite->changeAnimation(WALKING_RIGHT);
+			}
+		}
+		if (key == 51) {
+			if (state == WALKING_LEFT_STATE) {
+				state = DIG_LEFT_STATE;
+				sprite->changeAnimation(DIG);
+			}
+			else if (state == WALKING_RIGHT_STATE) {
+				state = DIG_RIGHT_STATE;
+				sprite->changeAnimation(DIG);
+			}
+			else if (state == DIG_LEFT_STATE) {
+				state = WALKING_LEFT_STATE;
+				sprite->changeAnimation(WALKING_LEFT);
+			}
+			else if (state == DIG_RIGHT_STATE) {
+				state = WALKING_RIGHT_STATE;
+				sprite->changeAnimation(WALKING_RIGHT);
+			}
+		}
+		if (key == 52) {
+			if (state == WALKING_LEFT_STATE) {
+				state = STOP_LEFT_STATE;
+				sprite->changeAnimation(STOPPER);
+			}
+			else if (state == WALKING_RIGHT_STATE) {
+				state = STOP_RIGHT_STATE;
+				sprite->changeAnimation(STOPPER);
+			}
+			else if (state == STOP_LEFT_STATE) {
+				resumePikmin(sprite->position());
+				state = WALKING_LEFT_STATE;
+				sprite->changeAnimation(WALKING_LEFT);
+			}
+			else if (state == STOP_RIGHT_STATE) {
+				resumePikmin(sprite->position());
+				state = WALKING_RIGHT_STATE;
+				sprite->changeAnimation(WALKING_RIGHT);
+			}
+		}
+		if (key == 53) {
+			if (state == WALKING_LEFT_STATE) {
+				state = STOP_COLOR_LEFT_STATE;
+				sprite->changeAnimation(STOPPER);
+			}
+			else if (state == WALKING_RIGHT_STATE) {
+				state = STOP_COLOR_RIGHT_STATE;
+				sprite->changeAnimation(STOPPER);
+			}
+			else if (state == STOP_COLOR_LEFT_STATE) {
+				resumePikmin(sprite->position());
+				state = WALKING_LEFT_STATE;
+				sprite->changeAnimation(WALKING_LEFT);
+			}
+			else if (state == STOP_COLOR_RIGHT_STATE) {
+				resumePikmin(sprite->position());
+				state = WALKING_RIGHT_STATE;
+				sprite->changeAnimation(WALKING_RIGHT);
+			}
+		}
+		if (key == 54) {
+			if (state == WALKING_LEFT_STATE) {
+				state = CLIMB_LEFT_STATE;
+				sprite->changeAnimation(CLIMB);
+			}
+			else if (state == WALKING_RIGHT_STATE) {
+				state = CLIMB_RIGHT_STATE;
+				sprite->changeAnimation(CLIMB);
+			}
+			else if (state == CLIMB_LEFT_STATE) {
+				state = WALKING_LEFT_STATE;
+				sprite->changeAnimation(WALKING_LEFT);
+			}
+			else if (state == CLIMB_RIGHT_STATE) {
+				state = WALKING_LEFT_STATE;
+				sprite->changeAnimation(WALKING_LEFT);
 			}
 		}
 	}
@@ -586,12 +783,12 @@ bool Lemming::canDoAction(int request) {
 	return false;
 }
 
-void Lemming::doAction(int request){
+void Lemming::doAction(int request) {
 	if (request == 8) {
 		++powers[request];
 	}
 	else if (request == 9) {
-		if (state == WALKING_LEFT_STATE)state = DIG_LEFT_STATE;
+		if (state == WALKING_LEFT_STATE) state = DIG_LEFT_STATE;
 		else if (state == WALKING_RIGHT_STATE) state = DIG_RIGHT_STATE;
 		sprite->changeAnimation(DIG);
 	}
@@ -599,6 +796,8 @@ void Lemming::doAction(int request){
 
 void Lemming::die()
 {
+	//sprite->changeAnimation(DEATH);
+	//state = DEATH_STATE;
 }
 
 

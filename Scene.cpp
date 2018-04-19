@@ -24,7 +24,7 @@ void Scene::init()
 	escenario = 0;
 	projection = glm::ortho(0.f, float(CAMERA_WIDTH - 1), float(CAMERA_HEIGHT - 1 + 28), 0.f);
 	menu.init(projection);
-	selectLevels.init(projection);
+	//selectLevels.init(projection);
 	currentTime = 0.0f;
 	speed = 1.0f;
 	/*lemming.init(glm::vec2(60, 30), simpleTexProgram);
@@ -41,7 +41,10 @@ void Scene::update(int deltaTime)
 	if (escenario == 2) {
 		level.update(deltaTime);
 		int aux = level.WantToGoBack();
-		if (aux == 1) escenario = 0;
+		if (aux == 1) {
+			init();
+			escenario = 0;
+		}
 	}
 }
 void Scene::keypressed(int key) {
@@ -77,17 +80,20 @@ void Scene::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 }
 
 int Scene::mouseRelease(int mouseX, int mouseY, int button) {
-	if (escenario == 2) {
+	if (escenario == 2 || escenario == 3 || escenario ==  4) {
 		level.mouseRelease(mouseX, mouseY, button);
 		speed = level.getSpeed();
 	}
 	if (escenario == 1) {
 		escenario = selectLevels.mouseRelease(button);
-		if (escenario == 2) level.init(escenario-1);
+		if (escenario == 0) menu.init(projection);
+		else if (escenario == 1) selectLevels.init(projection);
+		else if (escenario > 1) level.init(escenario-1);
 	}
 	else if (escenario == 0) {
 		escenario = menu.mouseRelease(button);
-		if (escenario > 1) level.init(escenario-1);
+		if (escenario == 1) selectLevels.init(projection);
+		else if (escenario > 1) level.init(escenario-1);
 	}
 	return speed;
 }

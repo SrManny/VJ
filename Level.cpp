@@ -29,7 +29,9 @@ void Level::initMatrixs() {
 
 	if (nLevel == 3) {
 		trampaModel = glm::mat4(1.0f);
-		trampaModel = glm::translate(trampaModel, glm::vec3(200.f, 30.f, 0.f));
+		trampaModel = glm::translate(trampaModel, glm::vec3(trampaBox[0], trampaBox[2], 0.f));
+		interruptorModel = glm::mat4(1.0f);
+		interruptorModel = glm::translate(interruptorModel, glm::vec3(interruptorBox[0], interruptorBox[2], 0.f));
 	}
 	exitModel = glm::mat4(1.0f);
 	exitModel = glm::translate(exitModel, glm::vec3(exitPoint[0] + 12, exitPoint[1], 0.f));
@@ -63,7 +65,7 @@ void Level::initMatrixs() {
 }
 
 void Level::keypressed(int key) { // NEW
-	if (key == 49 || key == 51 || key == 52 || key == 54 || key == 50) {
+	if (key == 49 || key == 51 || key == 52 || key == 54 || key == 50 || key == 53 || key == 101) {
 		int request;
 		if (key == 49) request = 8;
 		else if (key == 50) request = 6;
@@ -71,7 +73,7 @@ void Level::keypressed(int key) { // NEW
 		else if (key == 52) request = 5;
 		else if (key == 53) request = 4;
 		else if (key == 54) request = 2;
-		else if (key == 3) request = 3;
+		else if (key == 101) request = 3;
 		cout << request << endl;
 		int stateAction = powersBar.getPowersBarState(request);
 		int total = 0;
@@ -99,7 +101,7 @@ void Level::keypressed(int key) { // NEW
 		Nuke();
 	else if (key == 122) //SPAWN RED, KEY: z
 		spawnPikmin(0);
-	else if(key == 120) //SPAWN BLUE, KEY: x
+	else if (key == 120) //SPAWN BLUE, KEY: x
 		spawnPikmin(1);
 	else if (key == 99) //SPAWN YELLOW, KEY: c
 		spawnPikmin(2);
@@ -161,10 +163,10 @@ void Level::init(int nLevel)
 	inCentreX = 0.f;
 	speed = 1;
 	second = 0.f, winTime = 3.f;
-	//winSong.openFromFile("soundTrack/14.results.wav");
-	//winSong.setLoop(true);
-	//gameOverSong.openFromFile("soundTrack/28liveasapikmin.wav");
-	//gameOverSong.setLoop(true);
+	winSong.openFromFile("soundTrack/14.results.wav");
+	winSong.setLoop(true);
+	gameOverSong.openFromFile("soundTrack/28liveasapikmin.wav");
+	gameOverSong.setLoop(true);
 	paused = 1; weLost = 0, weWin = 0, weWantToGoBack = 0; vPik.clear();
 	this->nLevel = nLevel;
 	stateBackMenu = 0;
@@ -172,7 +174,7 @@ void Level::init(int nLevel)
 	setValues();
 	initShaders();
 	initMatrixs();
-	powersBar.init();
+	powersBar.init(nLevel);
 	glm::vec2 geom[2] = { glm::vec2(0.f, 0.f), glm::vec2(sizeOfLevel, float(CAMERA_HEIGHT)) };
 	glm::vec2 texCoords[2] = { glm::vec2(0.f, 0.f), glm::vec2(1.f,160.f / 256.f) };
 	map = MaskedTexturedQuad::createTexturedQuad(geom, texCoords, maskedTexProgram);
@@ -264,6 +266,26 @@ void Level::init(int nLevel)
 	int aleatorio = rand() % 4;
 	spawnPikmin(aleatorio);
 
+	//INICIAMOS TRAMPA Y BOTON SI LEVEL == 3
+	if (nLevel = 3) {
+		//CARGAMOS LA TRAMPA
+
+		trampa.loadFromFile("images/Environment/Lava.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		trampa.setMinFilter(GL_NEAREST);
+		trampa.setMagFilter(GL_NEAREST);
+		glm::vec2 texCoordsTrampa[2] = { glm::vec2(0.f, 0.f), glm::vec2(1.f, 1.f) };
+		glm::vec2 geomTrampa[2] = { glm::vec2(1.f,1.f), glm::vec2(32.f, 32.f) };
+		trampaQuad = TexturedQuad::createTexturedQuad(geomTrampa, texCoordsTrampa, zetaTextProgram);
+		//CARGAMOS EL BOTON
+
+		interruptor.loadFromFile("images/Environment/ButtonSwitch.png", TEXTURE_PIXEL_FORMAT_RGBA);
+		interruptor.setMinFilter(GL_NEAREST);
+		interruptor.setMagFilter(GL_NEAREST);
+		glm::vec2 texCoordsInterruptor[2] = { glm::vec2(0.f, 0.f), glm::vec2(0.5f, 1.0f) };
+		glm::vec2 geomInterruptor[2] = { glm::vec2(1.f,1.f), glm::vec2(32.f, 32.f) };
+		interruptorQuad = TexturedQuad::createTexturedQuad(geomInterruptor, texCoordsInterruptor, zetaTextProgram);
+	}
+
 }
 
 void Level::setValues() {
@@ -281,27 +303,27 @@ void Level::setValues() {
 		sizeOfLevel = 512.f;
 		requiredPercent = 50;
 		exitBox = glm::vec4(exitPoint[0], exitPoint[0] + 32, exitPoint[1], exitPoint[1] + 32);
-		//ost.openFromFile("soundTrack/06theimpactsite.wav");
-		//ost.setLoop(true);
-		//ost.play();
+		ost.openFromFile("soundTrack/06theimpactsite.wav");
+		ost.setLoop(true);
+		ost.play();
 	}
 	else if (nLevel == 2) {
 		maxPikmins = 20;
 		out = 0;
 		LevelTextureLocation = "images/Levels/level2.png";
 		LevelMaskLocation = "images/Levels/level2_mask.png";
-		spawnPoint = glm::vec2(-120, 30);
-		exitPoint = glm::vec2(216, 100);
+		spawnPoint = glm::vec2(-400, 30);
+		exitPoint = glm::vec2(536, 74);
 		Time = 650;
 		survived = 10;
 		winPikmins = 10;
 		offsetxLevel = 449.f;
 		sizeOfLevel = 1218.f;
 		requiredPercent = 70;
-		exitBox = glm::vec4(216, 221, 100, 105);
-		//ost.openFromFile("soundTrack/06theimpactsite.wav");
-		//ost.setLoop(true);
-		//ost.play();
+		exitBox = glm::vec4(exitPoint[0], exitPoint[0] + 32, exitPoint[1], exitPoint[1] + 32);
+		ost.openFromFile("soundTrack/level2.wav");
+		ost.setLoop(true);
+		ost.play();
 	}
 
 	else if (nLevel == 3) {
@@ -309,28 +331,21 @@ void Level::setValues() {
 		out = 0;
 		LevelTextureLocation = "images/Levels/mayhem2.png";
 		LevelMaskLocation = "images/Levels/mayhem2_mask.png";
-		spawnPoint = glm::vec2(60, 30);
-		exitPoint = glm::vec2(216, 100);
+		spawnPoint = glm::vec2(70, 20);
+		exitPoint = glm::vec2(216, 107);
 		Time = 650;
 		survived = 0;
 		winPikmins = 10;
 		offsetxLevel = 120.f;
 		sizeOfLevel = 671.f;
-		requiredPercent = 100;
-		exitBox = glm::vec4(216, 221, 100, 105);
-		//CARGAMOS LA TRAMPA
-		trampaBox = glm::vec4(2, 2, 150, 150);
-		interruptorBox = glm::vec4(0, 0, 5, 5);
-		trampa.loadFromFile("images/Environment/Lava.png", TEXTURE_PIXEL_FORMAT_RGBA);
-		trampa.setMinFilter(GL_NEAREST);
-		trampa.setMagFilter(GL_NEAREST);
-		glm::vec2 texCoordsTrampa[2] = { glm::vec2(0.f, 0.f), glm::vec2(1.f, 1.f) };
-		glm::vec2 geomTrampa[2] = { glm::vec2(1.f,1.f), glm::vec2(32.f, 32.f) };
-		spawnQuad = TexturedQuad::createTexturedQuad(geomTrampa, texCoordsTrampa, zetaTextProgram);
-
-		//ost.openFromFile("soundTrack/06theimpactsite.wav");
-		//ost.setLoop(true);
-		//ost.play();
+		requiredPercent = 90;
+		exitBox = glm::vec4(exitPoint[0], exitPoint[0] + 32, exitPoint[1], exitPoint[1] + 32);
+		tipusTrampa = 0;
+		trampaBox = glm::vec4(80, 96, 30, 46);// POR DEFINIR
+		interruptorBox = glm::vec4(2, 2, 150, 150); // POR DEFINIR
+													ost.openFromFile("soundTrack/level3.wav");
+													ost.setLoop(true);
+													ost.play();
 	}
 }
 
@@ -436,34 +451,47 @@ void Level::render() {
 			pausedQuad->render(pausedTexture);
 		}
 		/*else if (weWin == 1) {
-			zetaTextProgram.setUniformMatrix4f("modelview", pausedMatrix);
-			pausedQuad->render(winTexture);
+		zetaTextProgram.setUniformMatrix4f("modelview", pausedMatrix);
+		pausedQuad->render(winTexture);
 		}*/
 		//Renderizamos el spaw
 		zetaTextProgram.setUniformMatrix4f("projection", projection);
 		zetaTextProgram.setUniformMatrix4f("modelview", spawnModel);
-		zetaTextProgram.setUniformMatrix4f("trampa", trampaModel);
 		spawnQuad->render(spawn);
 		//Renderizamos la salida 
 		zetaTextProgram.setUniformMatrix4f("modelview", exitModel);
 		exitQuad->render(exit);
+		if (nLevel == 3) {
+			zetaTextProgram.setUniformMatrix4f("modelview", trampaModel);
+			spawnQuad->render(trampa);
+			zetaTextProgram.setUniformMatrix4f("modelview", interruptorModel);
+			spawnQuad->render(interruptor);
+		}
 	}
 }
 
 void Level::update(int deltaTime)
 {
 	float aux = float(deltaTime) * float(speed);
+	spawnTime += 1.f/float(deltaTime);
 	second += 1 / aux;
 	/*if (weWin == 0 && winPikmins <= survived) {
-		//ost.stop();
-		//winSong.play();
-		cout << "pero k pasa" << endl;
-		//weWin = 1;
+	//ost.stop();
+	//winSong.play();
+	cout << "pero k pasa" << endl;
+	//weWin = 1;
 	}
 	else*/ if (weWin != 1 && paused == 1 && weLost != 1) {
 		if (second > 1) {
 			second = 0;
 			--Time;
+		}
+		if (spawnTime > 1) {
+			spawnTime = 0;
+			if (out < maxPikmins / 2 && Time % 5 == 0) {
+				int aleatorio = rand() % 4;
+				spawnPikmin(aleatorio);
+			}
 		}
 		//Modificar pls
 		int aliveLemmings = 10;
@@ -496,14 +524,14 @@ void Level::update(int deltaTime)
 
 		collisionLevel();
 		/*if (winPikmins <= survived) {
-			cout << " entro en el cout del Win" << endl;
-			weWin = 1;
+		cout << " entro en el cout del Win" << endl;
+		weWin = 1;
 		}
 		else*//* if (Time <= 0 || aliveLemmings <= 0) {
-			//ost.stop();
-			//gameOverSong.play();
-			cout << " entro en el cout del lost" << endl;
-			weWin = 1;
+		//ost.stop();
+		//gameOverSong.play();
+		cout << " entro en el cout del lost" << endl;
+		weWin = 1;
 		}*/
 		//else if (winPikmins == 10) weWin = 1;
 		cout << "estoy haciendo update" << endl;
@@ -542,7 +570,7 @@ void Level::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 		bool intersectaFast = fastForwardQuad->intersecta(mouseX, mouseY, fastForwardModel);
 		mapPressed = powersBar.mouseMoved(mouseX, mouseY, bLeftButton);
 		if (mapPressed) {
-			inCentreX = (mouseX*(1218.f/960.f) - (524.f / 648.f)*1218.f)*2.5;
+			inCentreX = (mouseX*(1218.f / 960.f) - (524.f / 648.f)*1218.f)*2.5;
 			projection2 = glm::ortho(offsetxLevel + inCentreX, float(offsetxLevel + 320.f - 1 + inCentreX), float(160.f - 1 + 28), 0.f);
 			projection = glm::ortho(float(inCentreX), float(CAMERA_WIDTH - 1 + inCentreX), float(CAMERA_HEIGHT - 1 + 28), 0.f);
 		}
@@ -559,12 +587,12 @@ int Level::mouseRelease(int mouseX, int mouseY, int button)
 		for (int i = 0; i < 2; ++i) {
 			bool intersecta = loseQuads[0]->intersecta(mouseX, mouseY, loseMatrix[i]);
 			if (intersecta &&  i == 0) {
-				//gameOverSong.stop();
+				gameOverSong.stop();
 				init(nLevel);
 			}
 			else if (intersecta && i == 1) {
-				//ost.stop();
-				//gameOverSong.stop();
+				ost.stop();
+				gameOverSong.stop();
 				weWantToGoBack = 1;
 			}
 		}
@@ -574,16 +602,16 @@ int Level::mouseRelease(int mouseX, int mouseY, int button)
 			bool intersecta = loseQuads[0]->intersecta(mouseX, mouseY, loseMatrix[i]);
 			if (intersecta &&  i == 0) {
 				if (nLevel < 3) {
-					//winSong.stop();
+					winSong.stop();
 					init(nLevel + 1);
 				}
 				else {
-					//winSong.stop();
+					winSong.stop();
 					weWantToGoBack = 1;
 				}
 			}
 			else if (intersecta && i == 1) {
-				//winSong.stop();
+				winSong.stop();
 				weWantToGoBack = 1;
 			}
 		}
@@ -717,32 +745,45 @@ void Level::collisionLevel() { //NEW
 			++survived;
 			vPik.erase(vPik.begin() + i);
 		}
-		if (nLevel == 3) {
+		if (nLevel == 3 && vPik.size() > 0) {
 			if (vPik[i].hitLevel(trampaBox)) {
 				vPik.erase(vPik.begin() + i);
 			}
-			else if (vPik[i].hitLevel(trampaBox)) {
-				vPik.erase(vPik.begin() + i);
+			else if (vPik[i].hitLevel(interruptorBox)) {
+				eraseTrampa();
 			}
 		}
 	}
 }
 
 void Level::gameFinish() { //NEW
+
 	if (vPik.size() == 0) {
 		//if (out == maxPikmins) {
-			if ((float(survived) / float(maxPikmins) * 100) > requiredPercent)
-				weWin = 1;
-			else
-				weLost = 1;
-		//}
+		if ((float(survived) / float(maxPikmins) * 100) > requiredPercent) {
+			ost.stop();
+			winSong.play();
+			weWin = 1;
+		}
+		else {
+			weLost = 1;
+			ost.stop();
+			gameOverSong.play();
+			//}
+		}
+
 	}
 	if (Time == 0) {
 		if ((float(survived) / float(maxPikmins) * 100) > requiredPercent) {
+			ost.stop();
+			winSong.play();
 			weWin = 1;
 		}
-		else
+		else {
 			weLost = 1;
+			ost.stop();
+			gameOverSong.play();
+		}
 	}
 }
 
@@ -751,4 +792,23 @@ void Level::Nuke() { //NEW
 		vPik[i].explode();
 	}
 	gameFinish();
+}
+
+void Level::setTrampa() {
+	for (int i = 0; i < trampaBox[1]; ++i) {
+		for (int j = 0; j < trampaBox[3]; ++j) {
+			if (maskTexture.pixel(trampaBox[0] + i, trampaBox[2] + j) == 0)
+				maskTexture.setPixel(trampaBox[0] + i, trampaBox[2] + j, 255 - tipusTrampa - 2);
+		}
+	}
+}
+
+void Level::eraseTrampa() {
+
+	for (int i = 0; i < trampaBox[1]; ++i) {
+		for (int j = 0; j < trampaBox[3]; ++j) {
+			if (maskTexture.pixel(trampaBox[0] + i, trampaBox[2] + j) == 255 - tipusTrampa - 2)
+				maskTexture.setPixel(trampaBox[0] + i, trampaBox[2] + j, 0);
+		}
+	}
 }

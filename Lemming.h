@@ -74,7 +74,7 @@ private:
 	int lemmingClicked;
 	int boundingBox[4], powers[12], alturaMaxima;
 	float explodeTime, dyngTime;
-	float centreX, desplazamiento;
+	float centreX, desplazamiento, caidaMax;
 	bool bselected, primero, primeroCaida;
 	int tipusLemming;
 };

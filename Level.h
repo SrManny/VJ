@@ -4,6 +4,7 @@
 #include "MaskedTexturedQuad.h"
 #include <list>
 #include "Lemming.h"
+#include <SFML\Audio.hpp>
 
 class Level
 {
@@ -29,6 +30,8 @@ public:
 
 	void gameFinish(); //NEW
 	void Nuke(); //NEW
+	void setTrampa();
+	void eraseTrampa();
 	void deleteDeadPikmins(); //NEW
 
 	void collisionLevel(); //NEW
@@ -43,7 +46,7 @@ private:
 	Texture  powersTexture, fastForwardButton, numbers, spawn, exit, pausedTexture, loseTextures[2], gameOverTexture, winTexture, winTextures[2];
 	VariableTexture colorTexture, maskTexture;
 	MaskedTexturedQuad *map;
-	TexturedQuad *powersQuad, *fastForwardQuad, *numbersQuad[10], *numbersResultQuad[10], *spawnQuad, *exitQuad, *pausedQuad, *gameOverAndWinQuad, *loseQuads[3];
+	TexturedQuad *powersQuad, *fastForwardQuad, *numbersQuad[10], *numbersResultQuad[10], *spawnQuad, *exitQuad, *pausedQuad, *gameOverAndWinQuad, *loseQuads[3], *trampaQuad, *interruptorQuad;
 	int inCentreX, speed, stateBackMenu, stateRetry;
 	bool overBackMenu, overRetry;
 	Lemming lemmings[1];
@@ -54,9 +57,10 @@ private:
 	vector <int> actualment{ 0,0,0,0 };
 	int nLevel, survived, Time, out;
 	float second, winTime;
-	float offsetxLevel, sizeOfLevel;
+	float offsetxLevel, sizeOfLevel, spawnTime;
 	glm::vec2 spawnPoint;
 	glm::vec2 exitPoint;
+	sf::Music ost, winSong, gameOverSong;
 	bool mapPressed;
 	string LevelTextureLocation;
 	string LevelMaskLocation;
@@ -66,8 +70,9 @@ private:
 	ShaderProgram simpleTexProgram, maskedTexProgram, zetaTextProgram;
 	//NEW
 	int requiredPercent;
-	Texture trampa;
-	Texture interruptor;
+	Texture trampa, interruptor;
 	glm::vec4 trampaBox, exitBox, interruptorBox;
-	glm::mat4 trampaModel;
+	glm::mat4 trampaModel, interruptorModel;
+	int tipusTrampa;
+	bool interruptorON;
 };

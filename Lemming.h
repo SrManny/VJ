@@ -39,14 +39,21 @@ public:
 	void resumePikmin(glm::vec2 pos);
 	bool canDoAction(int request);
 	void doAction(int request);
+	int getState();
 
 	void die();
+
+	//NEW
+	void explode();
+	bool hitLevel(glm::vec4 Box);
+	bool isDead();
 
 private:
 	int collisionFloor(int maxFall);
 	bool collisionCeiling(int offset);
 	bool collision(int offset);
 	int* getboundingBox();
+	int buildPixels;
 	void initShaders();
 
 private:

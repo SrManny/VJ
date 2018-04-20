@@ -13,7 +13,7 @@ PowersBar::~PowersBar()
 
 void PowersBar::renderPowerStates() {
 	for (int i = 0; i < 12; ++i) {
-		if (i != 10) {
+		if (i != 10 && i != 11 && i != 7) {
 			int aux0 = actionButtonState[i];
 			for (int j = 0; j < 2; ++j) {
 				int div = pow(10, 2 - j - 1);
@@ -137,8 +137,7 @@ void PowersBar::init() {
 	for (int i = 0; i < 12; ++i) {
 		actionButtonQuad[i] = TexturedQuad::createTexturedQuad(geomActionButton, texCoords, zetaTextProgram);
 		actionButtonState[i] = 0;
-		if (i == 9) actionButtonState[i] += 2;
-		if (i == 8) actionButtonState[i] += 2;
+		actionButtonState[i] += 2;
 	}
 	loadActionButtonsImages();
 	actionRequest = -1;
@@ -238,11 +237,13 @@ void PowersBar::render() {
 	mapSelectedQuad->render(mapSelectedTexture);
 	zetaTextProgram.setUniform2f("zeta", 0.f, 0.0f);
 	for (int i = 0; i < 12; ++i) {
-		zetaTextProgram.setUniformMatrix4f("modelview", buttonsMatrix[i]);
-		if (i == 10) {
-			actionButtonQuad[i]->render(pauseStop[paused]);
+		if (i != 7) {
+			zetaTextProgram.setUniformMatrix4f("modelview", buttonsMatrix[i]);
+			if (i == 10) {
+				actionButtonQuad[i]->render(pauseStop[paused]);
+			}
+			else actionButtonQuad[i]->render(actionButton[i]);
 		}
-		else actionButtonQuad[i]->render(actionButton[i]);
 	}
 	renderPowerStates();
 }

@@ -12,12 +12,10 @@
 #define JUMP_HEIGHT 96
 #define FALL_STEP 4
 
-
 enum LemmingAnims
 {
 	WALKING_LEFT, WALKING_RIGHT, FALLING_LEFT, FALLING_RIGHT, DYING, DEATH, DIG, BASH_LEFT, BASH_RIGHT, CLIMB, BUILD_LEFT, BUILD_RIGHT, EXPLODE, BLOCK, STOPPER
 };
-
 
 void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, int tipus)
 {
@@ -30,6 +28,7 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 	spritesheet.loadFromFile("images/Pikmin.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	spritesheet.setMinFilter(GL_NEAREST);
 	spritesheet.setMagFilter(GL_NEAREST);
+
 	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.125 / 2.f, 0.25 / 2), &spritesheet, &shaderProgram);
 	//tipusLemming = rand() % 4;
 	tipusLemming = tipus;
@@ -77,7 +76,7 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 		sprite->addKeyframe(EXPLODE, glm::vec2(0.75 + float(i) / 16.0, tipusLemming / 4.0));
 	}
 
-	sprite->setAnimationSpeed(DYING, 32);
+	sprite->setAnimationSpeed(DYING, 25);
 	for (int i = 0; i < 3; i++)
 		sprite->addKeyframe(DYING, glm::vec2(0.75 + float(i) / 16.0, tipusLemming / 4.0 + 0.125));
 
@@ -138,7 +137,23 @@ void Lemming::update(int deltaTime, float centreX)
 		sprite->position() += glm::vec2(-1, -1);
 		if (collision(0))
 		{
-			if (powers[8] > 0) {
+			if (powers[2] > 0) {
+				if (!collisionCeiling(1)) {
+					if (collision(-1)) {
+						--powers[2];
+						sprite->position() += glm::vec2(0, -1);
+						sprite->changeAnimation(CLIMB);
+						state = CLIMB_LEFT_STATE;
+					}
+					else if (collision(-2)) {
+						--powers[2];
+						sprite->position() += glm::vec2(-1, -1);
+						sprite->changeAnimation(CLIMB);
+						state = CLIMB_LEFT_STATE;
+					}
+				}
+			}
+			else if (powers[8] > 0) {
 				--powers[8];
 				sprite->changeAnimation(BASH_LEFT);
 				state = BASH_LEFT_STATE;
@@ -164,7 +179,23 @@ void Lemming::update(int deltaTime, float centreX)
 		sprite->position() += glm::vec2(1, -1);
 		if (collision(0))
 		{
-			if (powers[8] > 0) {
+			if (powers[2] > 0) {
+				if (!collisionCeiling(1)) {
+					if (collision(1)) {
+						sprite->position() += glm::vec2(0, -1);
+						--powers[2];
+						sprite->changeAnimation(CLIMB);
+						state = CLIMB_RIGHT_STATE;
+					}
+					else if (collision(2)) {
+						sprite->position() += glm::vec2(1, -1);
+						--powers[2];
+						sprite->changeAnimation(CLIMB);
+						state = CLIMB_RIGHT_STATE;
+					}
+				}
+			}
+			else if (powers[8] > 0) {
 				--powers[8];
 				sprite->changeAnimation(BASH_RIGHT);
 				state = BASH_RIGHT_STATE;
@@ -232,7 +263,9 @@ void Lemming::update(int deltaTime, float centreX)
 			if (fall > 2)
 				state = FALLING_LEFT_STATE;
 		}
-		else bash(sprite->position(), -1);
+		else {
+			bash(sprite->position(), -1);
+		}
 		break;
 
 	case BASH_RIGHT_STATE:
@@ -256,8 +289,9 @@ void Lemming::update(int deltaTime, float centreX)
 		}
 		break;
 	case BUILD_LEFT_STATE:
-		if (!collision(3)) {
+		if (!collision(3) && buildPixels < 50) {
 			//sprite->changeAnimation(BUILD_LEFT);
+			++buildPixels;
 			build(sprite->position(), -1);
 			sprite->position() += glm::vec2(-2, -1);
 		}
@@ -267,7 +301,8 @@ void Lemming::update(int deltaTime, float centreX)
 		}
 		break;
 	case BUILD_RIGHT_STATE:
-		if (!collision(3)) {
+		if (!collision(3) && buildPixels < 50) {
+			++buildPixels;
 			//sprite->changeAnimation(BUILD_RIGHT);
 			build(sprite->position(), 1);
 			sprite->position() += glm::vec2(2, -1);
@@ -278,19 +313,19 @@ void Lemming::update(int deltaTime, float centreX)
 		}
 		break;
 	case STOP_LEFT_STATE:
-		//sprite->changeAnimation(STOPPER);
+		sprite->changeAnimation(STOPPER);
 		stop(sprite->position());
 		break;
 	case STOP_RIGHT_STATE:
-		//sprite->changeAnimation(STOPPER);
+		sprite->changeAnimation(STOPPER);
 		stop(sprite->position());
 		break;
 	case STOP_COLOR_LEFT_STATE:
-		//sprite->changeAnimation(STOPPER);
+		sprite->changeAnimation(STOPPER);
 		stopColor(sprite->position());
 		break;
 	case STOP_COLOR_RIGHT_STATE:
-		//sprite->changeAnimation(STOPPER);
+		sprite->changeAnimation(STOPPER);
 		stopColor(sprite->position());
 		break;
 	case CLIMB_LEFT_STATE:
@@ -367,7 +402,6 @@ void Lemming::render(glm::mat4 projection)
 		//modelview = glm::translate(modelview, glm::vec3(currentTime / 1000.f, 0.f, 0.f));
 		modelView = glm::mat4(1.0f);
 		glm::vec2 pos = sprite->position();
-		//cout << "Position of first lemming selected " << pos.x << " " << pos.y << endl;
 		modelView = glm::translate(modelView, glm::vec3(pos.x + 8.f, pos.y + 8.f, 0.f));
 		modelView = glm::translate(modelView, glm::vec3(-16.f / 2.f, -16.f / 2.f, 0.f));
 		zetaTextProgram.setUniformMatrix4f("modelview", modelView);
@@ -539,7 +573,6 @@ bool Lemming::collision(int offset)
 	if (mask->pixel(posBase.x, posBase.y) == 0 || mask->pixel(posBase.x, posBase.y) == 255 - tipusLemming - 2)
 		if (mask->pixel(posBase.x + 1, posBase.y) == 0 || mask->pixel(posBase.x + 1, posBase.y) == 255 - tipusLemming - 2)
 			return false;
-	cout << "EN ESTA LLAMADA A COLISSION, EL PIXEL A CONSULTAR VALE: " << 255 - tipusLemming - 2 << " EL PIXEL VALE: " << coutAux << endl;
 	return true;
 }
 
@@ -562,11 +595,6 @@ void Lemming::mouseMoved(int mouseX, int mouseY, bool bLeftButton) {
 		lemmingClicked = 0;
 	}
 	else if (!inter && !bselected) lemmingClicked = -1;
-	/*else if (inter && (lemmingClicked == 0) && !bLeftButton) {
-	lemmingClicked = 1;
-	}*/
-	//else if (inter && (lemmingClicked == 1) && bLeftButton) lemmingClicked = 1;
-	//else if (inter && (lemmingClicked == 1) && !bLeftButton) lemmingClicked = -1;
 	else if (!inter && (lemmingClicked == 0)) lemmingClicked = -1;
 }
 
@@ -651,129 +679,23 @@ void Lemming::keyReleased(int key)
 
 void Lemming::keyPressed(int key)
 {
-	if (bselected) {
-		if (key == 101) {
-			state = EXPLODE_STATE;
-			sprite->changeAnimation(EXPLODE);
-		}
-		if (key == 49) {
-			if (state == WALKING_LEFT_STATE) {
-				state = BASH_LEFT_STATE;
-				sprite->changeAnimation(BASH_LEFT);
-			}
-			else if (state == WALKING_RIGHT_STATE) {
-				state = BASH_RIGHT_STATE;
-				sprite->changeAnimation(BASH_RIGHT);
-			}
-			else if (state == BASH_LEFT_STATE) {
-				state = WALKING_LEFT_STATE;
-				sprite->changeAnimation(WALKING_LEFT);
-			}
-			else if (state == BASH_RIGHT_STATE) {
-				state = WALKING_RIGHT_STATE;
-				sprite->changeAnimation(WALKING_RIGHT);
-			}
-		}
-		if (key == 50) {
-			if (state == WALKING_LEFT_STATE) {
-				state = BUILD_LEFT_STATE;
-				sprite->changeAnimation(BUILD_LEFT);
-			}
-			else if (state == WALKING_RIGHT_STATE) {
-				state = BUILD_RIGHT_STATE;
-				sprite->changeAnimation(BUILD_RIGHT);
-			}
-			else if (state == BUILD_LEFT_STATE) {
-				state = WALKING_LEFT_STATE;
-				sprite->changeAnimation(WALKING_LEFT);
-			}
-			else if (state == BUILD_RIGHT_STATE) {
-				state = WALKING_RIGHT_STATE;
-				sprite->changeAnimation(WALKING_RIGHT);
-			}
-		}
-		if (key == 51) {
-			if (state == WALKING_LEFT_STATE) {
-				state = DIG_LEFT_STATE;
-				sprite->changeAnimation(DIG);
-			}
-			else if (state == WALKING_RIGHT_STATE) {
-				state = DIG_RIGHT_STATE;
-				sprite->changeAnimation(DIG);
-			}
-			else if (state == DIG_LEFT_STATE) {
-				state = WALKING_LEFT_STATE;
-				sprite->changeAnimation(WALKING_LEFT);
-			}
-			else if (state == DIG_RIGHT_STATE) {
-				state = WALKING_RIGHT_STATE;
-				sprite->changeAnimation(WALKING_RIGHT);
-			}
-		}
-		if (key == 52) {
-			if (state == WALKING_LEFT_STATE) {
-				state = STOP_LEFT_STATE;
-				sprite->changeAnimation(STOPPER);
-			}
-			else if (state == WALKING_RIGHT_STATE) {
-				state = STOP_RIGHT_STATE;
-				sprite->changeAnimation(STOPPER);
-			}
-			else if (state == STOP_LEFT_STATE) {
-				resumePikmin(sprite->position());
-				state = WALKING_LEFT_STATE;
-				sprite->changeAnimation(WALKING_LEFT);
-			}
-			else if (state == STOP_RIGHT_STATE) {
-				resumePikmin(sprite->position());
-				state = WALKING_RIGHT_STATE;
-				sprite->changeAnimation(WALKING_RIGHT);
-			}
-		}
-		if (key == 53) {
-			if (state == WALKING_LEFT_STATE) {
-				state = STOP_COLOR_LEFT_STATE;
-				sprite->changeAnimation(STOPPER);
-			}
-			else if (state == WALKING_RIGHT_STATE) {
-				state = STOP_COLOR_RIGHT_STATE;
-				sprite->changeAnimation(STOPPER);
-			}
-			else if (state == STOP_COLOR_LEFT_STATE) {
-				resumePikmin(sprite->position());
-				state = WALKING_LEFT_STATE;
-				sprite->changeAnimation(WALKING_LEFT);
-			}
-			else if (state == STOP_COLOR_RIGHT_STATE) {
-				resumePikmin(sprite->position());
-				state = WALKING_RIGHT_STATE;
-				sprite->changeAnimation(WALKING_RIGHT);
-			}
-		}
-		if (key == 54) {
-			if (state == WALKING_LEFT_STATE) {
-				state = CLIMB_LEFT_STATE;
-				sprite->changeAnimation(CLIMB);
-			}
-			else if (state == WALKING_RIGHT_STATE) {
-				state = CLIMB_RIGHT_STATE;
-				sprite->changeAnimation(CLIMB);
-			}
-			else if (state == CLIMB_LEFT_STATE) {
-				state = WALKING_LEFT_STATE;
-				sprite->changeAnimation(WALKING_LEFT);
-			}
-			else if (state == CLIMB_RIGHT_STATE) {
-				state = WALKING_LEFT_STATE;
-				sprite->changeAnimation(WALKING_LEFT);
-			}
-		}
-	}
+	if (bselected) {}
 }
 
 bool Lemming::canDoAction(int request) {
 	if (request == 8) {
 		if (state != FALLING_LEFT_STATE && state != FALLING_RIGHT_STATE) return true;
+	}
+	else if (request == 2)  return true;
+	else if (request == 3) return true;
+	else if (request == 4) {
+		if (state == STOP_COLOR_LEFT_STATE || state == WALKING_LEFT_STATE || state == WALKING_RIGHT_STATE || state == STOP_COLOR_RIGHT_STATE) return true;
+	}
+	else if (request == 5) {
+		if (state == STOP_RIGHT_STATE || state == WALKING_LEFT_STATE || state == WALKING_RIGHT_STATE || state == STOP_LEFT_STATE) return true;
+	}
+	else if (request == 6) {
+		if (state == WALKING_LEFT_STATE || state == WALKING_RIGHT_STATE) return true;
 	}
 	else if (request == 9) {
 		if (state == WALKING_LEFT_STATE || state == WALKING_RIGHT_STATE) return true;
@@ -782,7 +704,7 @@ bool Lemming::canDoAction(int request) {
 }
 
 void Lemming::doAction(int request) {
-	if (request == 8) {
+	if (request == 8 || request == 2) {
 		++powers[request];
 	}
 	else if (request == 9) {
@@ -790,12 +712,109 @@ void Lemming::doAction(int request) {
 		else if (state == WALKING_RIGHT_STATE) state = DIG_RIGHT_STATE;
 		sprite->changeAnimation(DIG);
 	}
+	else if (request == 4) {
+		if (state == WALKING_LEFT_STATE) {
+			state = STOP_COLOR_LEFT_STATE;
+			sprite->changeAnimation(STOPPER);
+		}
+		else if (state == WALKING_RIGHT_STATE) {
+			state = STOP_COLOR_RIGHT_STATE;
+			sprite->changeAnimation(STOPPER);
+		}
+		else if (state == STOP_COLOR_LEFT_STATE) {
+			resumePikmin(sprite->position());
+			state = WALKING_LEFT_STATE;
+			sprite->changeAnimation(WALKING_LEFT);
+		}
+		else if (state == STOP_COLOR_RIGHT_STATE) {
+			resumePikmin(sprite->position());
+			state = WALKING_RIGHT_STATE;
+			sprite->changeAnimation(WALKING_RIGHT);
+		}
+	}
+	else if (request == 5) {
+		if (state == WALKING_LEFT_STATE) {
+			state = STOP_LEFT_STATE;
+			sprite->changeAnimation(STOPPER);
+		}
+		else if (state == WALKING_RIGHT_STATE) {
+			state = STOP_RIGHT_STATE;
+			sprite->changeAnimation(STOPPER);
+		}
+		else if (state == STOP_LEFT_STATE) {
+			resumePikmin(sprite->position());
+			state = WALKING_LEFT_STATE;
+			sprite->changeAnimation(WALKING_LEFT);
+		}
+		else if (state == STOP_RIGHT_STATE) {
+			resumePikmin(sprite->position());
+			state = WALKING_RIGHT_STATE;
+			sprite->changeAnimation(WALKING_RIGHT);
+		}
+	}
+	else if (request == 6) {
+		buildPixels = 0;
+		if (state == WALKING_LEFT_STATE) {
+			state = BUILD_LEFT_STATE;
+			sprite->changeAnimation(BUILD_LEFT);
+		}
+		else if (state == WALKING_RIGHT_STATE) {
+			state = BUILD_RIGHT_STATE;
+			sprite->changeAnimation(BUILD_RIGHT);
+		}
+		else if (state == BUILD_LEFT_STATE) {
+			state = WALKING_LEFT_STATE;
+			sprite->changeAnimation(WALKING_LEFT);
+		}
+		else if (state == BUILD_RIGHT_STATE) {
+			state = WALKING_RIGHT_STATE;
+			sprite->changeAnimation(WALKING_RIGHT);
+		}
+	}
+	else if (request == 3) {
+		state = EXPLODE_STATE;
+		sprite->changeAnimation(EXPLODE);
+	}
 }
 
 void Lemming::die()
 {
-	//sprite->changeAnimation(DEATH);
-	//state = DEATH_STATE;
+	state = DEATH_STATE;
 }
 
+void Lemming::explode()
+{
+	if (state == WALKING_LEFT_STATE || state == WALKING_RIGHT_STATE) {
+		state = EXPLODE_STATE;
+		sprite->changeAnimation(EXPLODE);
+		explosion(sprite->position());
+	}
+}
+
+bool Lemming::hitLevel(glm::vec4 Box)
+{
+	int posXmin = Box[0];
+	int posXmax = Box[1];
+	int posYmin = Box[2];
+	int posYmax = Box[3];
+	glm::vec2 aux = sprite->position();
+	int pikX = aux[0];
+	int pikY = aux[1];
+	if (pikX > posXmin && pikX < posXmax && pikY > posYmin && pikY < posYmax) {
+		state = DEATH_STATE;
+		return true;
+	}
+	return false;
+}
+
+bool Lemming::isDead() {
+	if (state == DEATH_STATE) {
+		return true;
+	}
+	return false;
+}
+
+int Lemming::getState() {
+	return state;
+}
 

@@ -63,44 +63,48 @@ void Level::initMatrixs() {
 }
 
 void Level::keypressed(int key) { // NEW
-	switch (key) {
-	case 101: //EXPLOSION, Key: e
-		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
-		break;
-	case 110: //NUKE, Key: n
-		Nuke();
-		break;
-	case 49: //BASH, Key: 1
-		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
-		break;
-	case 50: //BUILD, Key: 2
-		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
-		break;
-	case 51: //DIG, Key: 3
-		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
-		break;
-	case 52: //STOP, Key: 4
-		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
-		break;
-	case 53: //STOP BY COLOR, Key: 5
-		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
-		break;
-	case 54: //CLIMB, Key: 6
-		for (int i = 0; i < vPik.size(); ++i) vPik[i].keyPressed(key);
-		break;
-	case 122: //SPAWN RED, KEY: z
-		spawnPikmin(0);
-		break;
-	case 120: //SPAWN BLUE, KEY: x
-		spawnPikmin(1);
-		break;
-	case 99: //SPAWN YELLOW, KEY: c
-		spawnPikmin(2);
-		break;
-	case 118: //SPAWN PURPLE, KEY: v
-		spawnPikmin(3);
-		break;
+	if (key == 49 || key == 51 || key == 52 || key == 54 || key == 50) {
+		int request;
+		if (key == 49) request = 8;
+		else if (key == 50) request = 6;
+		else if (key == 51) request = 9;
+		else if (key == 52) request = 5;
+		else if (key == 53) request = 4;
+		else if (key == 54) request = 2;
+		else if (key == 3) request = 3;
+		cout << request << endl;
+		int stateAction = powersBar.getPowersBarState(request);
+		int total = 0;
+		for (int i = 0; i < vPik.size(); ++i) {
+			if (vPik[i].getIfSelected() && vPik[i].canDoAction(request)) {
+				lemmingsSelected[i] = i;
+				if (vPik[i].getState() < 17 && vPik[i].getState() < 20)
+					++total;
+			}
+		}
+		//fallamos intentando realizar un poder
+		if (total > stateAction) {
+			//Ruido de fallo
+		}
+		else {
+			for (int i = 0; i < vPik.size(); ++i) if (lemmingsSelected[i] != -1) {
+				vPik[lemmingsSelected[i]].doAction(request);
+				lemmingsSelected[i] = -1;
+			}
+			powersBar.setSpendPowers(request, total);
+		}
+		powersBar.finishRequest();
 	}
+	else if (key == 110) //NUKE, Key: n 
+		Nuke();
+	else if (key == 122) //SPAWN RED, KEY: z
+		spawnPikmin(0);
+	else if(key == 120) //SPAWN BLUE, KEY: x
+		spawnPikmin(1);
+	else if (key == 99) //SPAWN YELLOW, KEY: c
+		spawnPikmin(2);
+	else if (key == 118) //SPAWN PURPLE, KEY: v
+		spawnPikmin(3);
 }
 
 void Level::keyreleased(int key) {
@@ -469,8 +473,8 @@ void Level::update(int deltaTime)
 			int total = 0;
 			for (int i = 0; i < vPik.size(); ++i) {
 				if (vPik[i].getIfSelected() && vPik[i].canDoAction(request)) {
-					lemmingsSelected[i] = true;
-					++total;
+					lemmingsSelected[i] = i;
+					if (vPik[i].getState() < 17 && vPik[i].getState() < 20)++total;
 				}
 			}
 			//fallamos intentando realizar un poder
@@ -478,9 +482,9 @@ void Level::update(int deltaTime)
 				//Ruido de fallo
 			}
 			else {
-				for (int i = 0; i < vPik.size(); ++i) if (lemmingsSelected[i]) {
-					lemmingsSelected[i] = false;
-					vPik[i].doAction(request);
+				for (int i = 0; i < vPik.size(); ++i) if (lemmingsSelected[i] != -1) {
+					vPik[lemmingsSelected[i]].doAction(request);
+					lemmingsSelected[i] = -1;
 				}
 				powersBar.setSpendPowers(request, total);
 			}
@@ -549,6 +553,8 @@ void Level::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 int Level::mouseRelease(int mouseX, int mouseY, int button)
 {
 	powersBar.mouseRelease(mouseX, mouseY, button);
+	int aux = powersBar.getPowersBarRequest();
+	if (aux == 11) Nuke();
 	paused = powersBar.getPaused();
 	if (weLost == 1) {
 		for (int i = 0; i < 2; ++i) {
@@ -688,7 +694,7 @@ void Level::spawnPikmin(int tipus)
 		++actualment[tipus];
 		PikminAux.setMapColor(&colorTexture);
 		PikminAux.setMapMask(&maskTexture);
-		lemmingsSelected[vPik.size()] == false;
+		lemmingsSelected[vPik.size()] = -1;
 		++out;
 		vPik.push_back(PikminAux);
 	}

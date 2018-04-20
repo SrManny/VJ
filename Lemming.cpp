@@ -22,7 +22,7 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 	lemmingClicked = -1;
 	bselected = false;
 	this->desplazamiento = desplazamiento;
-	primero = true;
+	primero = true;primeroCaida = true;
 	initShaders();
 	state = FALLING_RIGHT_STATE;
 	for (int i = 0; i < 12; ++i) powers[i] = 0;
@@ -77,7 +77,7 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 		sprite->addKeyframe(EXPLODE, glm::vec2(0.75 + float(i) / 16.0, tipusLemming / 4.0));
 	}
 
-	sprite->setAnimationSpeed(DYING, 10);
+	sprite->setAnimationSpeed(DYING, 4);
 	for (int i = 0; i < 3; i++)
 		sprite->addKeyframe(DYING, glm::vec2(0.75 + float(i) / 16.0, tipusLemming / 4.0 + 0.125));
 
@@ -106,7 +106,14 @@ void Lemming::update(int deltaTime, float centreX)
 {
 	int fall;
 	this->centreX = centreX;
-
+	//cout << sprite->position().x << " " << sprite->position().y << endl;
+	if (primeroCaida && (sprite->position().y <= 0 || sprite->position().y >= 140)) {
+		cout << "estoy aqui verdad?" << endl;
+		sprite->changeAnimation(DYING);
+		state = DYING_STATE;
+		dyngTime = 0.f;
+		primeroCaida = false;
+	}
 	if (sprite->update(deltaTime) == 0)
 		return;
 	//cout << "me estoy actualizando" << endl;
@@ -173,6 +180,7 @@ void Lemming::update(int deltaTime, float centreX)
 			if (fall > 1)
 				sprite->position() += glm::vec2(0, 1);
 			if (fall > 2)
+
 				state = FALLING_LEFT_STATE;
 		}
 		break;
@@ -368,19 +376,26 @@ void Lemming::update(int deltaTime, float centreX)
 	case DYING_STATE:
 		//sprite->changeAnimation(DYING);
 		fall = collisionFloor(3);
-		if (fall > 0) {
-			sprite->position() += glm::vec2(0, 1);
-		}
-		else {
-			state = DEATH_STATE;
+		dyngTime += 1.f / float(deltaTime);
+		if (dyngTime > 0.2) {
+			if (fall > 0) {
+				sprite->position() += glm::vec2(0, 1);
+			}
+			else {
+				state = DEATH_STATE;
+			}
 		}
 		break;
 	case EXPLODE_STATE:
-
-		//sprite->changeAnimation(EXPLODE);
-		explosion(sprite->position());
-		sprite->changeAnimation(DYING);
-		state = DYING_STATE;
+		explodeTime += 1.f/float(deltaTime);
+		cout << explodeTime << endl;
+		if (explodeTime > 0.1) {
+			//sprite->changeAnimation(EXPLODE);
+			explosion(sprite->position());
+			sprite->changeAnimation(DYING);
+			state = DYING_STATE;
+			dyngTime = 0.f;
+		}
 		break;
 
 
@@ -776,6 +791,7 @@ void Lemming::doAction(int request) {
 	}
 	else if (request == 3) {
 		state = EXPLODE_STATE;
+		explodeTime = 0.f;
 		sprite->changeAnimation(EXPLODE);
 	}
 }
@@ -788,6 +804,7 @@ void Lemming::die()
 void Lemming::explode()
 {
 	if (state == WALKING_LEFT_STATE || state == WALKING_RIGHT_STATE) {
+		explodeTime = 0.f;
 		state = EXPLODE_STATE;
 		sprite->changeAnimation(EXPLODE);
 		explosion(sprite->position());

@@ -12,7 +12,7 @@ public:
 	PowersBar();
 	~PowersBar();
 
-	void init();
+	void init(int nLevel);
 	void render();
 
 	int mouseMoved(int mouseX, int mouseY, bool bLeftButton);

@@ -107,8 +107,8 @@ void PowersBar::loadActionButtonsImages() {
 	actionButton[11].setMagFilter(GL_NEAREST);
 }
 
-void PowersBar::init() {
-	level = 0;
+void PowersBar::init(int nLevel) {
+	level = nLevel;
 	paused = 1;
 	overMap = false;
 	initShaders();
@@ -134,10 +134,26 @@ void PowersBar::init() {
 	pauseStop[1].setMinFilter(GL_NEAREST);
 	pauseStop[1].setMagFilter(GL_NEAREST);
 	mapSelectedQuad = TexturedQuad::createTexturedQuad(geomMapSelected, texCoords, zetaTextProgram);
-	for (int i = 0; i < 12; ++i) {
-		actionButtonQuad[i] = TexturedQuad::createTexturedQuad(geomActionButton, texCoords, zetaTextProgram);
-		actionButtonState[i] = 0;
-		actionButtonState[i] += 2;
+	if (level == 1) {
+		for (int i = 0; i < 12; ++i) {
+			actionButtonQuad[i] = TexturedQuad::createTexturedQuad(geomActionButton, texCoords, zetaTextProgram);
+			actionButtonState[i] = 3;
+		}
+	}
+	else if (level == 2) {
+		for (int i = 0; i < 12; ++i) {
+			actionButtonQuad[i] = TexturedQuad::createTexturedQuad(geomActionButton, texCoords, zetaTextProgram);
+			if (i == 2) actionButtonState[i] = 40;
+			else if (i == 8) actionButtonState[i] = 2;
+			else if (i == 6) actionButtonState[i] = 4;
+			else actionButtonState[i] = 0;
+		}
+	}
+	else {
+		for (int i = 0; i < 12; ++i) {
+			actionButtonQuad[i] = TexturedQuad::createTexturedQuad(geomActionButton, texCoords, zetaTextProgram);
+			actionButtonState[i] = 2;
+		}
 	}
 	loadActionButtonsImages();
 	actionRequest = -1;
@@ -232,7 +248,7 @@ void PowersBar::render() {
 	zetaTextProgram.setUniformMatrix4f("modelview", powerModelMatrix);
 	barQuad->render(barTexture);
 	zetaTextProgram.setUniformMatrix4f("modelview", mapModelMatrix);
-	mapQuad->render(map[level]);
+	mapQuad->render(map[level-1]);
 	zetaTextProgram.setUniformMatrix4f("modelview", mapSelectedMatrix);
 	mapSelectedQuad->render(mapSelectedTexture);
 	zetaTextProgram.setUniform2f("zeta", 0.f, 0.0f);

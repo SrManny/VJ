@@ -72,9 +72,10 @@ private:
 	ShaderProgram zetaTextProgram;
 	glm::mat4 modelView;
 	int lemmingClicked;
-	int boundingBox[4], powers[12];
+	int boundingBox[4], powers[12], alturaMaxima;
+	float explodeTime, dyngTime;
 	float centreX, desplazamiento;
-	bool bselected, primero;
+	bool bselected, primero, primeroCaida;
 	int tipusLemming;
 };
 

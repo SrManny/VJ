@@ -77,7 +77,7 @@ void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgra
 		sprite->addKeyframe(EXPLODE, glm::vec2(0.75 + float(i) / 16.0, tipusLemming / 4.0));
 	}
 
-	sprite->setAnimationSpeed(DYING, 25);
+	sprite->setAnimationSpeed(DYING, 10);
 	for (int i = 0; i < 3; i++)
 		sprite->addKeyframe(DYING, glm::vec2(0.75 + float(i) / 16.0, tipusLemming / 4.0 + 0.125));
 

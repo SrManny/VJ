@@ -44,9 +44,9 @@ void SelectLevels::init(glm::mat4 projection) {
 	background.setMagFilter(GL_NEAREST);
 
 	imageLoc[0] = "images/Buttons/Back.png";
-	imageLoc[1] = "images/SelectLevels/fun1.png";
-	imageLoc[2] = "images/SelectLevels/fun1.png";
-	imageLoc[3] = "images/SelectLevels/fun1.png";
+	imageLoc[1] = "images/SelectLevels/level1.png";
+	imageLoc[2] = "images/SelectLevels/level2.png";
+	imageLoc[3] = "images/SelectLevels/level3.png";
 	ost.openFromFile("soundTrack/03levelselect.ogg");
 	ost.setLoop(true);
 	ost.play();

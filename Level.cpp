@@ -116,7 +116,7 @@ void Level::renderFinalScore() {
 	for (int i = 0; i < 3; ++i) {
 		if (i == 0) aux0 = survived;
 		else if (i == 1) aux0 = survived;
-		else aux0 = (survived / winPikmins) * 100;
+		else aux0 = (float(survived) / float(winPikmins)) * 100;
 		for (int j = 0; j < 3; ++j) {
 			int div = pow(10, 3 - j - 1);
 			int digit = aux0 / div;
@@ -135,7 +135,7 @@ void Level::renderScore() {
 		numbersQuad[digit]->render(numbers);
 		aux0 = aux0 % div;
 	}
-	int aux1 = (survived / winPikmins) * 100;
+	int aux1 = (float(survived) / float(winPikmins)) * 100;
 	for (int i = 0; i < 3; ++i) {
 		int div = pow(10, 3 - i - 1);
 		int digit = aux1 / div;
@@ -226,7 +226,7 @@ void Level::init(int nLevel)
 	loseTextures[1].setMinFilter(GL_NEAREST);
 	loseTextures[1].setMagFilter(GL_NEAREST);
 
-	winTextures[0].loadFromFile("images/Buttons/Retry.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	winTextures[0].loadFromFile("images/Buttons/next.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	winTextures[0].setMinFilter(GL_NEAREST);
 	winTextures[0].setMagFilter(GL_NEAREST);
 	winTextures[1].loadFromFile("images/Buttons/mainMenu.png", TEXTURE_PIXEL_FORMAT_RGBA);

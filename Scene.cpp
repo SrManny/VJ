@@ -38,7 +38,7 @@ unsigned int x = 0;
 void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
-	if (escenario == 2) {
+	if (escenario > 1) {
 		level.update(deltaTime);
 		int aux = level.WantToGoBack();
 		if (aux == 1) {

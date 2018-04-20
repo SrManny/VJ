@@ -16,17 +16,21 @@ Menu::~Menu()
 void Menu::startButtonMatrixs() {
 
 	startModel = glm::mat4(1.0f);
-	startModel = glm::translate(startModel, glm::vec3(120.f, 110.f, 0.f));
+	startModel = glm::translate(startModel, glm::vec3((480.f / 960.f)*320.f, 110.f, 0.f));
 	startModel = glm::translate(startModel, glm::vec3(-50.f / 2.f, -72.f / 8.f, 0.f));
 
 	startInvMatrix = glm::inverse(startModel);
 	selectModel = glm::mat4(1.0f);
-	selectModel = glm::translate(selectModel, glm::vec3(120.f, 110.f + (72.f / 4.f), 0.f));
+	selectModel = glm::translate(selectModel, glm::vec3((480.f / 960.f)*320.f, 110.f + (72.f / 4.f), 0.f));
 	selectModel = glm::translate(selectModel, glm::vec3(-50.f / 2.f, -72.f / 8.f, 0.f));
 
 	insMatrix = glm::mat4(1.0f);
-	insMatrix = glm::translate(insMatrix, glm::vec3(120.f, 110.f + (72.f / 2.f), 0.f));
+	insMatrix = glm::translate(insMatrix, glm::vec3((480.f / 960.f)*320.f, 110.f + (72.f / 2.f), 0.f));
 	insMatrix = glm::translate(insMatrix, glm::vec3(-50.f / 2.f, -72.f / 8.f, 0.f));
+	
+	creditosMatrix = glm::mat4(1.0f);
+	creditosMatrix = glm::translate(creditosMatrix, glm::vec3((480.f/960.f)*320.f, 110.f + 72.f/1.4f, 0.f));
+	creditosMatrix = glm::translate(creditosMatrix, glm::vec3(-50.f / 2.f, -72.f / 8.f, 0.f));
 
 	exitInsMatrix = glm::mat4(1.0f);
 	exitInsMatrix = glm::translate(exitInsMatrix, glm::vec3((239.f / 960.f)*320.f , (502.f / 564.f)*188.f, 0.f));
@@ -55,6 +59,10 @@ void Menu::init(glm::mat4 projection) {
 	background.loadFromFile("images/TitleScreen.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	background.setMinFilter(GL_NEAREST);
 	background.setMagFilter(GL_NEAREST);
+
+	creditosTexture.loadFromFile("images/Menu/creditos.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	creditosTexture.setMinFilter(GL_NEAREST);
+	creditosTexture.setMagFilter(GL_NEAREST);
 
 	instructions.loadFromFile("images/Menu/instructions.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	instructions.setMinFilter(GL_NEAREST);
@@ -105,6 +113,10 @@ void Menu::init(glm::mat4 projection) {
 	exitIns.loadFromFile("images/Buttons/mainMenu.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	insButton.setMinFilter(GL_NEAREST);
 	insButton.setMagFilter(GL_NEAREST);
+
+	creditosBut.loadFromFile("images/Buttons/credits.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	creditosBut.setMinFilter(GL_NEAREST);
+	creditosBut.setMagFilter(GL_NEAREST);
 }
 
 void Menu::render() {
@@ -115,7 +127,15 @@ void Menu::render() {
 	modelview = glm::mat4(1.0f);
 	zetaTextProgram.setUniformMatrix4f("modelview", modelview);
 	zetaTextProgram.setUniform2f("zeta", 0.f, 1.f);
-	if (!insPressed) {
+	if (creditosPressed) {
+		backQuad->render(creditosTexture);
+	}
+	else if (insPressed){
+		backQuad->render(instructions);
+		zetaTextProgram.setUniformMatrix4f("modelview", exitInsMatrix);
+		exitInsQuad[exitInsSprite]->render(exitIns);
+	}
+	else {
 		backQuad->render(background);
 		zetaTextProgram.setUniformMatrix4f("modelview", startModel);
 		zetaTextProgram.setUniform2f("zeta", 0.f, 0.5f);
@@ -124,11 +144,8 @@ void Menu::render() {
 		selectQuad[selectSprite]->render(select[selectSprite]);
 		zetaTextProgram.setUniformMatrix4f("modelview", insMatrix);
 		insQuad[insSprite]->render(insButton);
-	}
-	else {
-		backQuad->render(instructions);
-		zetaTextProgram.setUniformMatrix4f("modelview", exitInsMatrix);
-		exitInsQuad[exitInsSprite]->render(exitIns);
+		zetaTextProgram.setUniformMatrix4f("modelview", creditosMatrix);
+		insQuad[creditosSprite]->render(creditosBut);
 	}
 }
 
@@ -138,7 +155,24 @@ bool Menu::intersecta(int x, int y, glm::vec4 min, glm::vec4 max) {
 }
 void Menu::mouseMoved(int mouseX, int mouseY, bool bLeftButton) {
 
-	if (!insPressed) {
+	if(insPressed){
+		bool aux = exitInsQuad[0]->intersecta(mouseX, mouseY, exitInsMatrix);
+		if (aux) {
+			if (bLeftButton) {
+				exitInsSprite = 2;
+				overExit = true;
+			}
+			else {
+				exitInsSprite = 1;
+				overExit = false;
+			}
+		}
+		else {
+			exitInsSprite = 0;
+			overExit = false;
+		}
+	}
+	else if (!creditosPressed) {
 		bool aux1 = startQuad[0]->intersecta(mouseX, mouseY, startModel);
 		if (aux1) {
 			if (bLeftButton) {
@@ -186,24 +220,23 @@ void Menu::mouseMoved(int mouseX, int mouseY, bool bLeftButton) {
 			insSprite = 0;
 			overIns = false;
 		}
-	}
-	else {
-		bool aux = exitInsQuad[0]->intersecta(mouseX, mouseY, exitInsMatrix);
-		if (aux) {
+		bool aux4 = insQuad[0]->intersecta(mouseX, mouseY, creditosMatrix);
+		if (aux4) {
 			if (bLeftButton) {
-				exitInsSprite = 2;
-				overExit = true;
+				creditosSprite = 2;
+				overCreditos = true;
 			}
 			else {
-				exitInsSprite = 1;
-				overExit = false;
+				creditosSprite = 1;
+				overCreditos = false;
 			}
 		}
 		else {
-			exitInsSprite = 0;
-			overExit = false;
+			creditosSprite = 0;
+			overCreditos = false;
 		}
 	}
+	else if (creditosPressed && bLeftButton) creditosPressed = false;
 }
 
 int Menu::mouseRelease(int button) {
@@ -228,6 +261,11 @@ int Menu::mouseRelease(int button) {
 		exitInsSprite = 0;
 		overExit = false;
 		insPressed = false;
+	}
+	else if (overCreditos) {
+		overCreditos = false;
+		creditosSprite = 0;
+		creditosPressed = true;
 	}
 	return 0;
 }

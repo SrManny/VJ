@@ -1,6 +1,6 @@
 #include <SOIL.h>
 #include "VariableTexture.h"
-
+#include <iostream>
 
 using namespace std;
 
@@ -147,7 +147,14 @@ unsigned char VariableTexture::pixel(unsigned int x, unsigned int y) const
 
 void VariableTexture::setPixel(unsigned int x, unsigned int y, unsigned char value)
 {
-	if(format == TEXTURE_PIXEL_FORMAT_L)
+	if (format == TEXTURE_PIXEL_FORMAT_RGBA)
+	{
+		image[4 * (y * widthTex + x)] = value;
+		image[4 * (y * widthTex + x) + 1] = value;
+		image[4 * (y * widthTex + x) + 2] = value;
+		image[4 * (y * widthTex + x) + 3] = value;
+	}
+	else if(format == TEXTURE_PIXEL_FORMAT_L)
 	{
 		image[y * widthTex + x] = value;
 	}

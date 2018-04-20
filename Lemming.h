@@ -16,7 +16,7 @@ class Lemming
 {
 
 public:
-	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, int tipus);
+	void init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, int tipus, float desplzamiento);
 	void update(int deltaTime, float centreX);
 	void render(glm::mat4 projection);
 
@@ -73,7 +73,7 @@ private:
 	glm::mat4 modelView;
 	int lemmingClicked;
 	int boundingBox[4], powers[12];
-	float centreX;
+	float centreX, desplazamiento;
 	bool bselected, primero;
 	int tipusLemming;
 };

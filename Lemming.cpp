@@ -17,10 +17,11 @@ enum LemmingAnims
 	WALKING_LEFT, WALKING_RIGHT, FALLING_LEFT, FALLING_RIGHT, DYING, DEATH, DIG, BASH_LEFT, BASH_RIGHT, CLIMB, BUILD_LEFT, BUILD_RIGHT, EXPLODE, BLOCK, STOPPER
 };
 
-void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, int tipus)
+void Lemming::init(const glm::vec2 &initialPosition, ShaderProgram &shaderProgram, int tipus, float desplazamiento)
 {
 	lemmingClicked = -1;
 	bselected = false;
+	this->desplazamiento = desplazamiento;
 	primero = true;
 	initShaders();
 	state = FALLING_RIGHT_STATE;
@@ -422,7 +423,7 @@ void Lemming::setMapColor(VariableTexture *mapColor)
 
 void Lemming::eraseMask(glm::vec2 pos)
 {
-	int posX = pos[0] + 120 + 9;
+	int posX = pos[0] + desplazamiento + 9;
 	int posY = pos[1] + 14;
 	for (int y = max(0, posY - 8); y <= min(mask->height() - 1, posY + 8); y++)
 		for (int x = max(0, posX - 8); x <= min(mask->width() - 1, posX + 8); x++) {
@@ -433,17 +434,19 @@ void Lemming::eraseMask(glm::vec2 pos)
 
 void Lemming::explosion(glm::vec2 pos)
 {
-	int posX = pos[0] + 120 + 9;
+	int posX = pos[0] + desplazamiento + 9;
 	int posY = pos[1] + 14;
 	for (int i = -10; i < 10; ++i)
-		for (int j = -10; j < 10; ++j)
-			mask->setPixel(posX + i, posY + j, 0);
+		for (int j = -10; j < 10; ++j) {
+			float distance = sqrt(pow((i), 2) + pow((j), 2));
+			if (distance < 10) mask->setPixel(posX + i, posY + j, 0);
+		}
 
 }
 
 void Lemming::bash(glm::vec2 pos, int ind)
 {
-	int posX = pos[0] + 120 + 9;
+	int posX = pos[0] + desplazamiento + 9;
 	int posY = pos[1] + 14;
 	//ind indica si se excava a izquierda o derecha, 1 para derecha, -1 para izquierda
 	if (ind == 1) {
@@ -466,7 +469,7 @@ void Lemming::bash(glm::vec2 pos, int ind)
 
 void Lemming::dig(glm::vec2 pos)
 {
-	int posX = pos[0] + 120 + 9;
+	int posX = pos[0] + desplazamiento + 9;
 	int posY = pos[1] + 14;
 	for (int i = 0; i < 8; ++i) {
 		mask->setPixel(posX + i - 4, posY, 0);
@@ -477,7 +480,7 @@ void Lemming::dig(glm::vec2 pos)
 
 void Lemming::build(glm::vec2 pos, int ind)
 {
-	int posX = pos[0] + 120 + 9;
+	int posX = pos[0] + desplazamiento + 9;
 	int posY = pos[1] + 14;
 	//ind indica si se construye a izquierda o derecha, 1 para derecha, -1 para izquierda
 	if (ind == -1) {
@@ -495,7 +498,7 @@ void Lemming::build(glm::vec2 pos, int ind)
 }
 
 void Lemming::stop(glm::vec2 pos) {
-	int posX = pos[0] + 120 + 9;
+	int posX = pos[0] + desplazamiento + 9;
 	int posY = pos[1] + 14;
 	for (int i = 0; i < 10; ++i)
 		for (int j = 0; j < 5; ++j) {
@@ -507,7 +510,7 @@ void Lemming::stop(glm::vec2 pos) {
 }
 
 void Lemming::stopColor(glm::vec2 pos) {
-	int posX = pos[0] + 120 + 9;
+	int posX = pos[0] + desplazamiento + 9;
 	int posY = pos[1] + 14;
 	for (int i = 0; i < 10; ++i)
 		for (int j = 0; j < 5; ++j)
@@ -517,7 +520,7 @@ void Lemming::stopColor(glm::vec2 pos) {
 }
 
 void Lemming::resumePikmin(glm::vec2 pos) {
-	int posX = pos[0] + 120 + 9;
+	int posX = pos[0] + desplazamiento + 9;
 	int posY = pos[1] + 14;
 	for (int i = 0; i < 16; ++i)
 		for (int j = 0; j < 16; ++j) {
@@ -535,7 +538,7 @@ int Lemming::collisionFloor(int maxFall)
 {
 	bool bContact = false;
 	int fall = 0;
-	glm::ivec2 posBase = sprite->position() + glm::vec2(120, 0); // Add the map displacement
+	glm::ivec2 posBase = sprite->position() + glm::vec2(desplazamiento, 0); // Add the map displacement
 
 	posBase += glm::ivec2(7, 16);
 	while ((fall < maxFall) && !bContact)
@@ -553,7 +556,7 @@ int Lemming::collisionFloor(int maxFall)
 
 bool Lemming::collisionCeiling(int offset)
 {
-	glm::ivec2 posBase = sprite->position() + glm::vec2(120, 0); // Add the map displacement
+	glm::ivec2 posBase = sprite->position() + glm::vec2(desplazamiento, 0); // Add the map displacement
 
 	posBase += glm::ivec2(7, 15 - offset);
 	if ((mask->pixel(posBase.x, posBase.y) == 0))
@@ -566,7 +569,7 @@ bool Lemming::collisionCeiling(int offset)
 
 bool Lemming::collision(int offset)
 {
-	glm::ivec2 posBase = sprite->position() + glm::vec2(120, 0); // Add the map displacement
+	glm::ivec2 posBase = sprite->position() + glm::vec2(desplazamiento, 0); // Add the map displacement
 
 	posBase += glm::ivec2(7 + offset, 15);
 	int coutAux = mask->pixel(posBase.x + 1, posBase.y);

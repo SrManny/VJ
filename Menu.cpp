@@ -99,10 +99,10 @@ void Menu::init(glm::mat4 projection) {
 	select[2].loadFromFile("images/selectStage.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	select[2].setMinFilter(GL_NEAREST);
 	select[2].setMagFilter(GL_NEAREST);
-	insButton.loadFromFile("images/selectStage.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	insButton.loadFromFile("images/Buttons/controls.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	insButton.setMinFilter(GL_NEAREST);
 	insButton.setMagFilter(GL_NEAREST);
-	exitIns.loadFromFile("images/selectStage.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	exitIns.loadFromFile("images/Buttons/mainMenu.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	insButton.setMinFilter(GL_NEAREST);
 	insButton.setMagFilter(GL_NEAREST);
 }

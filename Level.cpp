@@ -270,13 +270,13 @@ void Level::setValues() {
 	if (nLevel == 1) {
 		maxPikmins = 10;
 		out = 0;
-		LevelTextureLocation = "images/fun1.png";
-		LevelMaskLocation = "images/fun1_mask.png";
+		LevelTextureLocation = "images/Levels/fun1.png";
+		LevelMaskLocation = "images/Levels/fun1_mask.png";
 		spawnPoint = glm::vec2(60, 30);
 		exitPoint = glm::vec2(216, 100);
 		Time = 100;
-		survived = 0;
-		winPikmins = 10;
+		survived = 0.f;
+		winPikmins = 10.f;
 		offsetxLevel = 120.f;
 		sizeOfLevel = 512.f;
 		requiredPercent = 50;
@@ -288,15 +288,15 @@ void Level::setValues() {
 	else if (nLevel == 2) {
 		maxPikmins = 20;
 		out = 0;
-		LevelTextureLocation = "images/fun1.png";
-		LevelMaskLocation = "images/fun1_mask.png";
-		spawnPoint = glm::vec2(60, 30);
+		LevelTextureLocation = "images/Levels/level2.png";
+		LevelMaskLocation = "images/Levels/level2_mask.png";
+		spawnPoint = glm::vec2(-120, 30);
 		exitPoint = glm::vec2(216, 100);
 		Time = 650;
 		survived = 10;
 		winPikmins = 10;
-		offsetxLevel = 120.f;
-		sizeOfLevel = 512.f;
+		offsetxLevel = 449.f;
+		sizeOfLevel = 1218.f;
 		requiredPercent = 70;
 		exitBox = glm::vec4(216, 221, 100, 105);
 		//ost.openFromFile("soundTrack/06theimpactsite.wav");
@@ -514,7 +514,6 @@ void Level::update(int deltaTime)
 
 void Level::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButton)
 {
-	//for (int i = 0; i < 1; ++i ) lemmings[i].mouseMoved(mouseX, mouseY, bLeftButton);
 	if (weLost == 1 || weWin == 1) {
 		for (int i = 0; i < 2; ++i) {
 			bool intersecta = loseQuads[0]->intersecta(mouseX, mouseY, loseMatrix[i]);
@@ -543,9 +542,9 @@ void Level::mouseMoved(int mouseX, int mouseY, bool bLeftButton, bool bRightButt
 		bool intersectaFast = fastForwardQuad->intersecta(mouseX, mouseY, fastForwardModel);
 		mapPressed = powersBar.mouseMoved(mouseX, mouseY, bLeftButton);
 		if (mapPressed) {
-			inCentreX = mouseX - (524.f / 648.f)*960.f;
-			projection2 = glm::ortho(120.f + inCentreX, float(120.f + 320.f - 1 + inCentreX), float(160.f - 1 + 28), 0.f);
-			projection = glm::ortho(0.f + inCentreX, float(CAMERA_WIDTH - 1 + inCentreX), float(CAMERA_HEIGHT - 1 + 28), 0.f);
+			inCentreX = (mouseX*(1218.f/960.f) - (524.f / 648.f)*1218.f)*2.5;
+			projection2 = glm::ortho(offsetxLevel + inCentreX, float(offsetxLevel + 320.f - 1 + inCentreX), float(160.f - 1 + 28), 0.f);
+			projection = glm::ortho(float(inCentreX), float(CAMERA_WIDTH - 1 + inCentreX), float(CAMERA_HEIGHT - 1 + 28), 0.f);
 		}
 	}
 }
@@ -690,7 +689,7 @@ void Level::spawnPikmin(int tipus)
 {
 	if (out + survived < maxPikmins) {
 		//PikminAux.init(glm::vec2(80, 50), simpleTexProgram, tipus);
-		PikminAux.init(spawnPoint, simpleTexProgram, tipus);
+		PikminAux.init(spawnPoint, simpleTexProgram, tipus, offsetxLevel);
 		++actualment[tipus];
 		PikminAux.setMapColor(&colorTexture);
 		PikminAux.setMapMask(&maskTexture);
@@ -731,22 +730,17 @@ void Level::collisionLevel() { //NEW
 
 void Level::gameFinish() { //NEW
 	if (vPik.size() == 0) {
-		if (out == maxPikmins) {
-			if (survived / maxPikmins * 100 > requiredPercent)
+		//if (out == maxPikmins) {
+			if ((float(survived) / float(maxPikmins) * 100) > requiredPercent)
 				weWin = 1;
 			else
 				weLost = 1;
-		}
-		else if (Time == 0) {
-			if (survived / maxPikmins * 100 > requiredPercent)
-				weWin = 1;
-			else
-				weLost = 1;
-		}
+		//}
 	}
-	else if (Time == 0) {
-		if (survived / maxPikmins * 100 > requiredPercent)
+	if (Time == 0) {
+		if ((float(survived) / float(maxPikmins) * 100) > requiredPercent) {
 			weWin = 1;
+		}
 		else
 			weLost = 1;
 	}
